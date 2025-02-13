@@ -52,35 +52,6 @@ jobs:
       - name: Inspect enclave
         run: kurtosis enclave inspect ${{ env.ENCLAVE_NAME }}
 
-      - name: Wait for the first block producer to commit a span
-        run: |
-          # Wait for the first producer to produce blocks on the EL chain.
-          start_time=$(date +%s)
-          timeout_duration=120 # in seconds
-          while true; do
-            # New block check.
-            el_node_output=$(kurtosis service logs ${{ env.ENCLAVE_NAME }} l2-el-1-bor-heimdall-validator --all)
-            cl_node_output=$(kurtosis service logs ${{ env.ENCLAVE_NAME }} l2-cl-1-heimdall-bor-validator --all)
-            if echo "${el_node_output}" | grep -q "Committing new span"; then
-              echo "✅ The first producer committed a span!"
-              echo; echo "EL node output:"; echo "${el_node_output}"
-              echo; echo "CL node output:"; echo "${cl_node_output}"
-              break
-            fi
-
-            # Timeout check.
-            current_time=$(date +%s)
-            if [[ $((current_time - start_time)) -ge ${timeout_duration} ]]; then
-              echo "❌ Timeout occurred after ${timeout_duration} seconds. The first producer has not committed any span yet..."
-              echo; echo "EL node output:"; echo "${el_node_output}"
-              echo; echo "CL node output:"; echo "${cl_node_output}"
-              exit 1
-            fi
-
-            echo "Checking again in 15 seconds..."
-            sleep 15
-          done
-
       - name: Check devnet status
         env:
           ENCLAVE: ${{ env.ENCLAVE_NAME }}
@@ -167,46 +138,6 @@ jobs:
       - name: Inspect enclave
         run: kurtosis enclave inspect ${{ env.ENCLAVE_NAME }}
 
-      - name: Wait for the first block producer to commit a span
-        run: |
-          cl_type=$(yq --raw-output '.polygon_pos_package.participants[0].cl_type' ${{ matrix.file_name }})
-          if [[ "${cl_type}" == "null" ]]; then
-            cl_type="heimdall"
-          fi
-          el_type=$(yq --raw-output '.polygon_pos_package.participants[0].el_type' ${{ matrix.file_name }})
-          if [[ "${el_type}" == "null" ]]; then
-            el_type="bor"
-          fi
-          cl_node_name="l2-cl-1-${cl_type}-${el_type}-validator"
-          el_node_name="l2-el-1-${el_type}-${cl_type}-validator"
-
-          # Wait for the first producer to produce blocks on the EL chain.
-          start_time=$(date +%s)
-          timeout_duration=120 # in seconds
-          while true; do
-            # New block check.
-            cl_node_output=$(kurtosis service logs ${{ env.ENCLAVE_NAME }} "${cl_node_name}" --all)
-            el_node_output=$(kurtosis service logs ${{ env.ENCLAVE_NAME }} "${el_node_name}" --all)
-            if echo "${el_node_output}" | grep -q "Committing new span"; then
-              echo "✅ The first producer committed a span!"
-              echo; echo "EL node output:"; echo "${el_node_output}"
-              echo; echo "CL node output:"; echo "${cl_node_output}"
-              break
-            fi
-
-            # Timeout check.
-            current_time=$(date +%s)
-            if [[ $((current_time - start_time)) -ge ${timeout_duration} ]]; then
-              echo "❌ Timeout occurred after ${timeout_duration} seconds. The first producer has not committed any span yet..."
-              echo; echo "EL node output:"; echo "${el_node_output}"
-              echo; echo "CL node output:"; echo "${cl_node_output}"
-              exit 1
-            fi
-
-            echo "Checking again in 15 seconds..."
-            sleep 15
-          done
-
       - name: Check devnet status
         env:
           ENCLAVE: ${{ env.ENCLAVE_NAME }}
@@ -280,35 +211,6 @@ jobs:
       - name: Inspect enclave
         run: kurtosis enclave inspect ${{ env.ENCLAVE_NAME }}
 
-      - name: Wait for the first block producer to commit a span
-        run: |
-          # Wait for the first producer to produce blocks on the EL chain.
-          start_time=$(date +%s)
-          timeout_duration=120 # in seconds
-          while true; do
-            # New block check.
-            el_node_output=$(kurtosis service logs ${{ env.ENCLAVE_NAME }} l2-el-1-bor-heimdall-validator --all)
-            cl_node_output=$(kurtosis service logs ${{ env.ENCLAVE_NAME }} l2-cl-1-heimdall-bor-validator --all)
-            if echo "${el_node_output}" | grep -q "Committing new span"; then
-              echo "✅ The first producer committed a span!"
-              echo; echo "EL node output:"; echo "${el_node_output}"
-              echo; echo "CL node output:"; echo "${cl_node_output}"
-              break
-            fi
-
-            # Timeout check.
-            current_time=$(date +%s)
-            if [[ $((current_time - start_time)) -ge ${timeout_duration} ]]; then
-              echo "❌ Timeout occurred after ${timeout_duration} seconds. The first producer has not committed any span yet..."
-              echo; echo "EL node output:"; echo "${el_node_output}"
-              echo; echo "CL node output:"; echo "${cl_node_output}"
-              exit 1
-            fi
-
-            echo "Checking again in 15 seconds..."
-            sleep 15
-          done
-
       - name: Check devnet status
         env:
           ENCLAVE: ${{ env.ENCLAVE_NAME }}
@@ -361,35 +263,6 @@ jobs:
 
       - name: Inspect enclave
         run: kurtosis enclave inspect ${{ env.ENCLAVE_NAME }}
-
-      - name: Wait for the first block producer to commit a span
-        run: |
-          # Wait for the first producer to produce blocks on the EL chain.
-          start_time=$(date +%s)
-          timeout_duration=120 # in seconds
-          while true; do
-            # New block check.
-            el_node_output=$(kurtosis service logs ${{ env.ENCLAVE_NAME }} l2-el-1-bor-heimdall-validator --all)
-            cl_node_output=$(kurtosis service logs ${{ env.ENCLAVE_NAME }} l2-cl-1-heimdall-bor-validator --all)
-            if echo "${el_node_output}" | grep -q "Committing new span"; then
-              echo "✅ The first producer committed a span!"
-              echo; echo "EL node output:"; echo "${el_node_output}"
-              echo; echo "CL node output:"; echo "${cl_node_output}"
-              break
-            fi
-
-            # Timeout check.
-            current_time=$(date +%s)
-            if [[ $((current_time - start_time)) -ge ${timeout_duration} ]]; then
-              echo "❌ Timeout occurred after ${timeout_duration} seconds. The first producer has not committed any span yet..."
-              echo; echo "EL node output:"; echo "${el_node_output}"
-              echo; echo "CL node output:"; echo "${cl_node_output}"
-              exit 1
-            fi
-
-            echo "Checking again in 15 seconds..."
-            sleep 15
-          done
 
       - name: Check devnet status
         env:

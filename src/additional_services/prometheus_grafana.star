@@ -94,34 +94,27 @@ def launch_panoptichain(
     )
 
     l2_el_genesis_artifact = plan.get_files_artifact(name="l2-el-genesis")
-    state_sync_receiver_address = plan.run_sh(
-        description="Reading state sync receiver address",
-        files={"/opt/contracts": l2_el_genesis_artifact},
-        run="jq --raw-output '.config.bor.stateReceiverContract' /opt/contracts/genesis.json | tr -d '\n'",
+    state_receiver_contract_address = (
+        contract_util.read_state_receiver_contract_address(plan, l2_el_genesis_artifact)
     )
 
     l2_config = get_l2_config(plan, l2_participants)
-
-    panoptichain_config_template = read_file(
-        src="../../static_files/panoptichain/config.yml"
-    )
-    panoptichain_data = {
-        "l1_rpcs": l1_rpcs,
-        "l2_rpcs": l2_config.rpcs,
-        "l1_chain_id": l1_chain_id,
-        "l2_chain_id": l2_chain_id,
-        "checkpoint_address": contract_addresses.get("root_chain"),
-        "state_sync_sender_address": contract_addresses.get("state_sender"),
-        "state_sync_receiver_address": state_sync_receiver_address.output,
-        "heimdall_urls": l2_config.heimdall_urls,
-    }
 
     panoptichain_config_artifact = plan.render_templates(
         name="panoptichain-config",
         config={
             "config.yml": struct(
-                template=panoptichain_config_template,
-                data=panoptichain_data,
+                template=read_file(src="../../static_files/panoptichain/config.yml"),
+                data={
+                    "l1_rpcs": l1_rpcs,
+                    "l2_rpcs": l2_config.rpcs,
+                    "l1_chain_id": l1_chain_id,
+                    "l2_chain_id": l2_chain_id,
+                    "checkpoint_address": contract_addresses.get("root_chain"),
+                    "state_sync_sender_address": contract_addresses.get("state_sender"),
+                    "state_sync_receiver_address": state_receiver_contract_address,
+                    "heimdall_urls": l2_config.heimdall_urls,
+                },
             )
         },
     )

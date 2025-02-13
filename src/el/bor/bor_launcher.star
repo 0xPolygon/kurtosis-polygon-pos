@@ -1,16 +1,9 @@
+el_shared = import_module("../el_shared.star")
+
+
 # Port identifiers and numbers.
-BOR_RPC_PORT_ID = "rpc"
-BOR_RPC_PORT_NUMBER = 8545
-
-BOR_WS_PORT_ID = "ws"
-BOR_WS_PORT_NUMBER = 8546
-
 BOR_DISCOVERY_PORT_ID = "discovery"
 BOR_DISCOVERY_PORT_NUMBER = 30303
-
-BOR_METRICS_PORT_ID = "metrics"
-BOR_METRICS_PORT_NUMBER = 7071
-
 
 # The folder where the bor template config is stored in the repository.
 BOR_TEMPLATE_CONFIG_FILE_PATH = "../../../static_files/bor/config.toml"
@@ -52,10 +45,10 @@ def launch(
                     # network params
                     "static_nodes": str(el_static_nodes),
                     # ports
-                    "rpc_port_number": BOR_RPC_PORT_NUMBER,
-                    "ws_port_number": BOR_WS_PORT_NUMBER,
+                    "rpc_port_number": el_shared.EL_RPC_PORT_NUMBER,
+                    "ws_port_number": el_shared.EL_WS_PORT_NUMBER,
                     "discovery_port_number": BOR_DISCOVERY_PORT_NUMBER,
-                    "metrics_port_number": BOR_METRICS_PORT_NUMBER,
+                    "metrics_port_number": el_shared.EL_METRICS_PORT_NUMBER,
                 },
             ),
         },
@@ -97,13 +90,13 @@ def launch(
             image=participant.get("el_image"),
             # All port checks are disabled, see the comment above.
             ports={
-                BOR_RPC_PORT_ID: PortSpec(
-                    number=BOR_RPC_PORT_NUMBER,
+                el_shared.EL_RPC_PORT_ID: PortSpec(
+                    number=el_shared.EL_RPC_PORT_NUMBER,
                     application_protocol="http",
                     wait=None,
                 ),
-                BOR_WS_PORT_ID: PortSpec(
-                    number=BOR_WS_PORT_NUMBER,
+                el_shared.EL_WS_PORT_ID: PortSpec(
+                    number=el_shared.EL_WS_PORT_NUMBER,
                     application_protocol="ws",
                     wait=None,
                 ),
@@ -112,8 +105,8 @@ def launch(
                     application_protocol="http",
                     wait=None,
                 ),
-                BOR_METRICS_PORT_ID: PortSpec(
-                    number=BOR_METRICS_PORT_NUMBER,
+                el_shared.EL_METRICS_PORT_ID: PortSpec(
+                    number=el_shared.EL_METRICS_PORT_NUMBER,
                     application_protocol="http",
                     wait=None,
                 ),

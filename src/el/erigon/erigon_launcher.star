@@ -1,16 +1,8 @@
-# Port identifiers and numbers.
-ERIGON_RPC_PORT_ID = "rpc"
-ERIGON_RPC_PORT_NUMBER = 8545
-
-ERIGON_WS_PORT_ID = "ws"
-ERIGON_WS_PORT_NUMBER = 8546
-
-ERIGON_METRICS_PORT_ID = "metrics"
-ERIGON_METRICS_PORT_NUMBER = 7071
+el_shared = import_module("../el_shared.star")
 
 
 # The folder where the erigon template config is stored in the repository.
-ERIGONTEMPLATE_CONFIG_FILE_PATH = "../../../static_files/erigon/config.toml"
+ERIGON_TEMPLATE_CONFIG_FILE_PATH = "../../../static_files/erigon/config.toml"
 
 
 # The folder where erigon configs are stored inside the service.
@@ -35,7 +27,7 @@ def launch(
         name="{}-node-config".format(el_node_name),
         config={
             "config.toml": struct(
-                template=read_file(ERIGONTEMPLATE_CONFIG_FILE_PATH),
+                template=read_file(ERIGON_TEMPLATE_CONFIG_FILE_PATH),
                 data={
                     # node params
                     "node_name": el_node_name,
@@ -48,9 +40,9 @@ def launch(
                     "el_chain_id": el_chain_id,
                     "static_nodes": ",".join(el_static_nodes),
                     # ports
-                    "rpc_port_number": ERIGON_RPC_PORT_NUMBER,
-                    "ws_port_number": ERIGON_WS_PORT_NUMBER,
-                    "metrics_port_number": ERIGON_METRICS_PORT_NUMBER,
+                    "rpc_port_number": el_shared.EL_RPC_PORT_NUMBER,
+                    "ws_port_number": el_shared.EL_WS_PORT_NUMBER,
+                    "metrics_port_number": el_shared.EL_METRICS_PORT_NUMBER,
                 },
             ),
         },
@@ -97,18 +89,18 @@ def launch(
             image=participant.get("el_image"),
             # All port checks are disabled, see the comment above.
             ports={
-                ERIGON_RPC_PORT_ID: PortSpec(
-                    number=ERIGON_RPC_PORT_NUMBER,
+                el_shared.EL_RPC_PORT_ID: PortSpec(
+                    number=el_shared.EL_RPC_PORT_NUMBER,
                     application_protocol="http",
                     wait=None,
                 ),
-                ERIGON_WS_PORT_ID: PortSpec(
-                    number=ERIGON_WS_PORT_NUMBER,
+                el_shared.EL_WS_PORT_ID: PortSpec(
+                    number=el_shared.EL_WS_PORT_NUMBER,
                     application_protocol="ws",
                     wait=None,
                 ),
-                ERIGON_METRICS_PORT_ID: PortSpec(
-                    number=ERIGON_METRICS_PORT_NUMBER,
+                el_shared.EL_METRICS_PORT_ID: PortSpec(
+                    number=el_shared.EL_METRICS_PORT_NUMBER,
                     application_protocol="http",
                     wait=None,
                 ),
