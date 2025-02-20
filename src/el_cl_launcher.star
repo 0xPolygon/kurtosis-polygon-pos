@@ -8,6 +8,7 @@ heimdall_v2 = import_module("./cl/heimdall_v2/heimdall_v2_launcher.star")
 pre_funded_accounts = import_module(
     "./prelaunch_data_generator/genesis_constants/pre_funded_accounts.star"
 )
+wait = import_module("./wait/wait.star")
 
 
 VALIDATOR_CONFIG_GENERATOR_FOLDER_PATH = "../static_files/validator"
@@ -158,10 +159,16 @@ def launch(
             if participant.get("is_validator", False):
                 validator_index += 1
 
+    # Wait for the devnet to reach a certain state.
+    # The first producer should have committed a span.
+    wait.wait_for_l2_startup(plan, cl_api_url, network_data.first_validator_cl_type)
+
 
 def _prepare_network_data(participants):
     # The API url of the first validator's CL node.
     first_validator_cl_api_url = ""
+    # The type of the first validator's CL node.
+    first_validator_cl_type = ""
     # An array of strings containing validator configurations.
     # Each string should follow the format: "<private_key>,<p2p_url>".
     cl_validator_configs = []
@@ -193,6 +200,7 @@ def _prepare_network_data(participants):
                         cl_node_name,
                         cl_shared.CL_REST_API_PORT_NUMBER,
                     )
+                    first_validator_cl_type = participant.get("cl_type")
 
                 # Generate the CL validator config.
                 cl_validator_config = "{},{},{},{},{}:{}".format(
@@ -239,6 +247,7 @@ def _prepare_network_data(participants):
 
     return struct(
         first_validator_cl_api_url=first_validator_cl_api_url,
+        first_validator_cl_type=first_validator_cl_type,
         cl_validator_configs_str=";".join(cl_validator_configs),
         cl_validator_keystores=cl_validator_keystores,
         el_validator_keystores=el_validator_keystores,

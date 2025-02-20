@@ -47,39 +47,10 @@ jobs:
           version: ${{ env.FOUNDRY_VERSION }}
 
       - name: Run Starlark
-        run: kurtosis run --enclave=${{ env.ENCLAVE_NAME }} --show-enclave-inspect=false .
+        run: kurtosis run --enclave=${{ env.ENCLAVE_NAME }} --show-enclave-inspect=false --verbosity DETAILED .
 
       - name: Inspect enclave
         run: kurtosis enclave inspect ${{ env.ENCLAVE_NAME }}
-
-      - name: Wait for the first block producer to commit a span
-        run: |
-          # Wait for the first producer to produce blocks on the EL chain.
-          start_time=$(date +%s)
-          timeout_duration=120 # in seconds
-          while true; do
-            # New block check.
-            el_node_output=$(kurtosis service logs ${{ env.ENCLAVE_NAME }} l2-el-1-bor-heimdall-validator --all)
-            cl_node_output=$(kurtosis service logs ${{ env.ENCLAVE_NAME }} l2-cl-1-heimdall-bor-validator --all)
-            if echo "${el_node_output}" | grep -q "Committing new span"; then
-              echo "✅ The first producer committed a span!"
-              echo; echo "EL node output:"; echo "${el_node_output}"
-              echo; echo "CL node output:"; echo "${cl_node_output}"
-              break
-            fi
-
-            # Timeout check.
-            current_time=$(date +%s)
-            if [[ $((current_time - start_time)) -ge ${timeout_duration} ]]; then
-              echo "❌ Timeout occurred after ${timeout_duration} seconds. The first producer has not committed any span yet..."
-              echo; echo "EL node output:"; echo "${el_node_output}"
-              echo; echo "CL node output:"; echo "${cl_node_output}"
-              exit 1
-            fi
-
-            echo "Checking again in 15 seconds..."
-            sleep 15
-          done
 
       - name: Check devnet status
         env:
@@ -87,11 +58,9 @@ jobs:
         run: bash scripts/discover.sh && bash scripts/monitor.sh
 
       - name: Dump enclave
-        if: ${{ !cancelled() }}
         run: kurtosis enclave dump ${{ env.ENCLAVE_NAME }} ./dump
 
       - name: Upload enclave dump
-        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
           name: dump_run_without_args_${{ github.run_id }}
@@ -162,50 +131,10 @@ jobs:
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Run Starlark
-        run: kurtosis run --enclave=${{ env.ENCLAVE_NAME }} --args-file=${{ matrix.file_name }} --show-enclave-inspect=false .
+        run: kurtosis run --enclave=${{ env.ENCLAVE_NAME }} --args-file=${{ matrix.file_name }} --show-enclave-inspect=false --verbosity DETAILED .
 
       - name: Inspect enclave
         run: kurtosis enclave inspect ${{ env.ENCLAVE_NAME }}
-
-      - name: Wait for the first block producer to commit a span
-        run: |
-          cl_type=$(yq --raw-output '.polygon_pos_package.participants[0].cl_type' ${{ matrix.file_name }})
-          if [[ "${cl_type}" == "null" ]]; then
-            cl_type="heimdall"
-          fi
-          el_type=$(yq --raw-output '.polygon_pos_package.participants[0].el_type' ${{ matrix.file_name }})
-          if [[ "${el_type}" == "null" ]]; then
-            el_type="bor"
-          fi
-          cl_node_name="l2-cl-1-${cl_type}-${el_type}-validator"
-          el_node_name="l2-el-1-${el_type}-${cl_type}-validator"
-
-          # Wait for the first producer to produce blocks on the EL chain.
-          start_time=$(date +%s)
-          timeout_duration=120 # in seconds
-          while true; do
-            # New block check.
-            cl_node_output=$(kurtosis service logs ${{ env.ENCLAVE_NAME }} "${cl_node_name}" --all)
-            el_node_output=$(kurtosis service logs ${{ env.ENCLAVE_NAME }} "${el_node_name}" --all)
-            if echo "${el_node_output}" | grep -q "Committing new span"; then
-              echo "✅ The first producer committed a span!"
-              echo; echo "EL node output:"; echo "${el_node_output}"
-              echo; echo "CL node output:"; echo "${cl_node_output}"
-              break
-            fi
-
-            # Timeout check.
-            current_time=$(date +%s)
-            if [[ $((current_time - start_time)) -ge ${timeout_duration} ]]; then
-              echo "❌ Timeout occurred after ${timeout_duration} seconds. The first producer has not committed any span yet..."
-              echo; echo "EL node output:"; echo "${el_node_output}"
-              echo; echo "CL node output:"; echo "${cl_node_output}"
-              exit 1
-            fi
-
-            echo "Checking again in 15 seconds..."
-            sleep 15
-          done
 
       - name: Check devnet status
         env:
@@ -222,11 +151,9 @@ jobs:
           bash scripts/monitor.sh
 
       - name: Dump enclave
-        if: ${{ !cancelled() }}
         run: kurtosis enclave dump ${{ env.ENCLAVE_NAME }} ./dump
 
       - name: Generate archive name
-        if: ${{ !cancelled() }}
         run: |
           file_name=$(basename "${{ matrix.file_name }}" ".yml")
           archive_name="dump_run_with_args_${file_name}_${{ github.run_id }}"
@@ -234,7 +161,6 @@ jobs:
           echo "Generated archive name: ${archive_name}"
 
       - name: Upload enclave dump
-        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ARCHIVE_NAME }}
@@ -272,42 +198,13 @@ jobs:
           version: ${{ env.FOUNDRY_VERSION }}
 
       - name: Deploy L1
-        run: kurtosis run --enclave=${{ env.ENCLAVE_NAME }} --args-file ./.github/tests/external-l1/ethereum.yml github.com/ethpandaops/ethereum-package@4.4.0
+        run: kurtosis run --enclave=${{ env.ENCLAVE_NAME }} --args-file ./.github/tests/external-l1/ethereum.yml --verbosity DETAILED github.com/ethpandaops/ethereum-package@4.4.0
 
       - name: Deploy L2
-        run: kurtosis run --enclave=${{ env.ENCLAVE_NAME }} --args-file=./.github/tests/external-l1/polygon-pos-with-external-l1.yml --show-enclave-inspect=false .
+        run: kurtosis run --enclave=${{ env.ENCLAVE_NAME }} --args-file=./.github/tests/external-l1/polygon-pos-with-external-l1.yml --show-enclave-inspect=false --verbosity DETAILED .
 
       - name: Inspect enclave
         run: kurtosis enclave inspect ${{ env.ENCLAVE_NAME }}
-
-      - name: Wait for the first block producer to commit a span
-        run: |
-          # Wait for the first producer to produce blocks on the EL chain.
-          start_time=$(date +%s)
-          timeout_duration=120 # in seconds
-          while true; do
-            # New block check.
-            el_node_output=$(kurtosis service logs ${{ env.ENCLAVE_NAME }} l2-el-1-bor-heimdall-validator --all)
-            cl_node_output=$(kurtosis service logs ${{ env.ENCLAVE_NAME }} l2-cl-1-heimdall-bor-validator --all)
-            if echo "${el_node_output}" | grep -q "Committing new span"; then
-              echo "✅ The first producer committed a span!"
-              echo; echo "EL node output:"; echo "${el_node_output}"
-              echo; echo "CL node output:"; echo "${cl_node_output}"
-              break
-            fi
-
-            # Timeout check.
-            current_time=$(date +%s)
-            if [[ $((current_time - start_time)) -ge ${timeout_duration} ]]; then
-              echo "❌ Timeout occurred after ${timeout_duration} seconds. The first producer has not committed any span yet..."
-              echo; echo "EL node output:"; echo "${el_node_output}"
-              echo; echo "CL node output:"; echo "${cl_node_output}"
-              exit 1
-            fi
-
-            echo "Checking again in 15 seconds..."
-            sleep 15
-          done
 
       - name: Check devnet status
         env:
@@ -315,11 +212,9 @@ jobs:
         run: bash scripts/discover.sh && bash scripts/monitor.sh
 
       - name: Dump enclave
-        if: ${{ !cancelled() }}
         run: kurtosis enclave dump ${{ env.ENCLAVE_NAME }} ./dump
 
       - name: Upload enclave dump
-        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
           name: dump_run_with_external_l1_${{ github.run_id }}
@@ -357,39 +252,10 @@ jobs:
           version: ${{ env.FOUNDRY_VERSION }}
 
       - name: Run Starlark
-        run: kurtosis run --enclave=${{ env.ENCLAVE_NAME }} --args-file=./.github/tests/cl-el-genesis/polygon-pos-with-cl-el-genesis.yml --show-enclave-inspect=false .
+        run: kurtosis run --enclave=${{ env.ENCLAVE_NAME }} --args-file=./.github/tests/cl-el-genesis/polygon-pos-with-cl-el-genesis.yml --show-enclave-inspect=false --verbosity DETAILED .
 
       - name: Inspect enclave
         run: kurtosis enclave inspect ${{ env.ENCLAVE_NAME }}
-
-      - name: Wait for the first block producer to commit a span
-        run: |
-          # Wait for the first producer to produce blocks on the EL chain.
-          start_time=$(date +%s)
-          timeout_duration=120 # in seconds
-          while true; do
-            # New block check.
-            el_node_output=$(kurtosis service logs ${{ env.ENCLAVE_NAME }} l2-el-1-bor-heimdall-validator --all)
-            cl_node_output=$(kurtosis service logs ${{ env.ENCLAVE_NAME }} l2-cl-1-heimdall-bor-validator --all)
-            if echo "${el_node_output}" | grep -q "Committing new span"; then
-              echo "✅ The first producer committed a span!"
-              echo; echo "EL node output:"; echo "${el_node_output}"
-              echo; echo "CL node output:"; echo "${cl_node_output}"
-              break
-            fi
-
-            # Timeout check.
-            current_time=$(date +%s)
-            if [[ $((current_time - start_time)) -ge ${timeout_duration} ]]; then
-              echo "❌ Timeout occurred after ${timeout_duration} seconds. The first producer has not committed any span yet..."
-              echo; echo "EL node output:"; echo "${el_node_output}"
-              echo; echo "CL node output:"; echo "${cl_node_output}"
-              exit 1
-            fi
-
-            echo "Checking again in 15 seconds..."
-            sleep 15
-          done
 
       - name: Check devnet status
         env:
@@ -397,11 +263,9 @@ jobs:
         run: bash scripts/discover.sh && bash scripts/monitor.sh
 
       - name: Dump enclave
-        if: ${{ !cancelled() }}
         run: kurtosis enclave dump ${{ env.ENCLAVE_NAME }} ./dump
 
       - name: Upload enclave dump
-        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
           name: dump_run_with_cl_el_genesis_${{ github.run_id }}

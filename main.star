@@ -239,8 +239,7 @@ def deploy_local_l1(plan, ethereum_args, preregistered_validator_keys_mnemonic):
     if len(l1.all_participants) < 1:
         fail("The L1 package did not start any participants.")
 
-    l1_config_env_vars = {
-        "CL_RPC_URL": str(l1.all_participants[0].cl_context.beacon_http_url),
-    }
-    wait.wait_for_startup(plan, l1_config_env_vars)
+    wait.wait_for_l1_startup(
+        plan, str(l1.all_participants[0].cl_context.beacon_http_url)
+    )
     return l1
