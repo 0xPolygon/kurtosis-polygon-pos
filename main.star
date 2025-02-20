@@ -28,20 +28,20 @@ constants = import_module("./src/package_io/constants.star")
 def run(plan, args):
     # Parse L1, L2 and dev input args.
     args = input_parser.input_parser(plan, args)
-    ethereum_args = args.get("ethereum_package", {})
-    polygon_pos_args = args.get("polygon_pos_package", {})
-    dev_args = args.get("dev", {})
+    ethereum_args = args.get("ethereum_package")
+    polygon_pos_args = args.get("polygon_pos_package")
+    dev_args = args.get("dev")
 
-    participants = polygon_pos_args.get("participants", {})
+    participants = polygon_pos_args.get("participants")
     validator_accounts = get_validator_accounts(participants)
-    l2_network_params = polygon_pos_args.get("network_params", {})
+    l2_network_params = polygon_pos_args.get("network_params")
 
     # Determine the devnet CL type to be able to select the appropriate validator address format later.
     devnet_cl_type = participants[0].get("cl_type")
 
     # Deploy a local L1 if needed.
     # Otherwise, use the provided rpc url.
-    if dev_args.get("should_deploy_l1", True):
+    if dev_args.get("should_deploy_l1"):
         plan.print(
             "Deploying a local L1 with the following input args: {}".format(
                 ethereum_args
@@ -50,7 +50,7 @@ def run(plan, args):
         l1 = deploy_local_l1(
             plan,
             ethereum_args,
-            l2_network_params.get("preregistered_validator_keys_mnemonic", ""),
+            l2_network_params.get("preregistered_validator_keys_mnemonic"),
         )
         prefunded_accounts_count = len(l1.pre_funded_accounts)
         if prefunded_accounts_count < 13:
@@ -75,14 +75,14 @@ def run(plan, args):
     else:
         plan.print("Using an external l1")
         l1_context = struct(
-            private_key=dev_args.get("l1_private_key", ""),
-            rpc_url=dev_args.get("l1_rpc_url", ""),
+            private_key=dev_args.get("l1_private_key"),
+            rpc_url=dev_args.get("l1_rpc_url"),
         )
-        l1_rpcs = {"external-l1": dev_args.get("l1_rpc_url", "")}
+        l1_rpcs = {"external-l1": dev_args.get("l1_rpc_url")}
 
     # Deploy MATIC contracts and generate the EL and CL genesis files if needed.
     # Otherwise, use the provided EL and CL genesis files.
-    if dev_args.get("should_deploy_matic_contracts", True):
+    if dev_args.get("should_deploy_matic_contracts"):
         plan.print("Number of validators: {}".format(len(validator_accounts)))
         plan.print(validator_accounts)
 
@@ -133,7 +133,7 @@ def run(plan, args):
             name="l2-el-genesis",
             config={
                 "genesis.json": struct(
-                    template=read_file(src=dev_args.get("l2_el_genesis_filepath", "")),
+                    template=read_file(src=dev_args.get("l2_el_genesis_filepath")),
                     data={},
                 )
             },
@@ -142,14 +142,14 @@ def run(plan, args):
             name="l2-cl-genesis",
             config={
                 "genesis.json": struct(
-                    template=read_file(src=dev_args.get("l2_cl_genesis_filepath", "")),
+                    template=read_file(src=dev_args.get("l2_cl_genesis_filepath")),
                     data={},
                 )
             },
         )
 
     # Deploy network participants.
-    participants_count = math.sum([p.get("count", 1) for p in participants])
+    participants_count = math.sum([p.get("count") for p in participants])
     plan.print(
         "Launching a Polygon PoS devnet with {} participants, including {} validators, and the following network params: {}".format(
             participants_count, len(validator_accounts), participants
@@ -166,7 +166,7 @@ def run(plan, args):
     )
 
     # Deploy additional services.
-    additional_services = polygon_pos_args.get("additional_services", [])
+    additional_services = polygon_pos_args.get("additional_services")
     for svc in additional_services:
         if svc == constants.ADDITIONAL_SERVICES.blockscout:
             blockscout.launch(plan)
@@ -190,8 +190,8 @@ def get_validator_accounts(participants):
     validator_accounts = []
     participant_index = 0
     for participant in participants:
-        for _ in range(participant.get("count", 1)):
-            if participant.get("is_validator", False):
+        for _ in range(participant.get("count")):
+            if participant.get("is_validator"):
                 if participant_index >= len(prefunded_accounts):
                     fail(
                         "Having more than {} validators is not supported for now.".format(
@@ -213,11 +213,9 @@ def deploy_local_l1(plan, ethereum_args, preregistered_validator_keys_mnemonic):
     # Sanity check the mnemonic used.
     # TODO: Remove this limitation.
     l2_network_params = input_parser.DEFAULT_POLYGON_POS_PACKAGE_ARGS.get(
-        "network_params", {}
+        "network_params"
     )
-    default_l2_mnemonic = l2_network_params.get(
-        "preregistered_validator_keys_mnemonic", ""
-    )
+    default_l2_mnemonic = l2_network_params.get("preregistered_validator_keys_mnemonic")
     if preregistered_validator_keys_mnemonic != default_l2_mnemonic:
         fail("Using a different mnemonic is not supported for now.")
 
@@ -225,8 +223,8 @@ def deploy_local_l1(plan, ethereum_args, preregistered_validator_keys_mnemonic):
     prefunded_accounts = account_util.to_ethereum_pkg_prefunded_accounts(
         pre_funded_accounts.PRE_FUNDED_ACCOUNTS,
     )
-    l1_network_params = ethereum_args.get("network_params", {})
-    user_prefunded_accounts_str = l1_network_params.get("prefunded_accounts", "")
+    l1_network_params = ethereum_args.get("network_params")
+    user_prefunded_accounts_str = l1_network_params.get("prefunded_accounts")
     if user_prefunded_accounts_str != "":
         user_prefunded_accounts = json.decode(user_prefunded_accounts_str)
         prefunded_accounts = prefunded_accounts | user_prefunded_accounts

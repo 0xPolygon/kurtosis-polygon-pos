@@ -33,7 +33,7 @@ def launch(
                 data={
                     # Node params.
                     "moniker": cl_node_name,
-                    "log_level": participant.get("cl_log_level", ""),
+                    "log_level": participant.get("cl_log_level"),
                     "persistent_peers": cl_node_ids,
                     # Port numbers.
                     "proxy_app_port_number": cl_shared.CL_PROXY_LISTEN_PORT_NUMBER,

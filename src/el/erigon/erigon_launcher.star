@@ -22,7 +22,7 @@ def launch(
     el_static_nodes,
     el_chain_id,
 ):
-    is_validator = participant.get("is_validator", False)
+    is_validator = participant.get("is_validator")
     erigon_node_config_artifact = plan.render_templates(
         name="{}-node-config".format(el_node_name),
         config={
@@ -35,7 +35,7 @@ def launch(
                     "data_folder_path": ERIGON_APP_DATA_FOLDER_PATH,
                     "address": el_account.eth_tendermint.address,
                     "cl_node_url": cl_node_url,
-                    "log_level": participant.get("el_log_level", ""),
+                    "log_level": participant.get("el_log_level"),
                     # network params.
                     "el_chain_id": el_chain_id,
                     "static_nodes": ",".join(el_static_nodes),

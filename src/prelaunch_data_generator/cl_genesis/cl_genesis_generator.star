@@ -17,7 +17,7 @@ def generate_cl_genesis_data(
     validator_accounts,
     contract_addresses_artifact,
 ):
-    network_params = polygon_pos_args.get("network_params", {})
+    network_params = polygon_pos_args.get("network_params")
     validators_number = len(validator_accounts)
 
     cl_type_specific_data = {}
@@ -50,7 +50,7 @@ def generate_cl_genesis_data(
             "total_voting_power": validator_data.total_voting_power,
         }
 
-    el_span_duration = network_params.get("el_span_duration", "")
+    el_span_duration = network_params.get("el_span_duration")
     contract_addresses = contract_util.read_contract_addresses(
         plan, contract_addresses_artifact
     )
@@ -67,22 +67,20 @@ def generate_cl_genesis_data(
                 ),
                 data={
                     # chain params
-                    "cl_chain_id": network_params.get("cl_chain_id", ""),
-                    "el_chain_id": network_params.get("el_chain_id", ""),
-                    "el_sprint_duration": network_params.get("el_sprint_duration", ""),
+                    "cl_chain_id": network_params.get("cl_chain_id"),
+                    "el_chain_id": network_params.get("el_chain_id"),
+                    "el_sprint_duration": network_params.get("el_sprint_duration"),
                     "el_span_duration": el_span_duration,
                     "el_first_span_end_block": el_span_duration - 1,
                     # contract addresses
-                    "matic_token_address": contract_addresses.get("matic_token", ""),
+                    "matic_token_address": contract_addresses.get("matic_token"),
                     "staking_manager_address": contract_addresses.get(
-                        "staking_manager", ""
+                        "staking_manager"
                     ),
-                    "slash_manager_address": contract_addresses.get(
-                        "slashing_manager", ""
-                    ),
-                    "root_chain_address": contract_addresses.get("root_chain", ""),
-                    "staking_info_address": contract_addresses.get("staking_info", ""),
-                    "state_sender_address": contract_addresses.get("state_sender", ""),
+                    "slash_manager_address": contract_addresses.get("slashing_manager"),
+                    "root_chain_address": contract_addresses.get("root_chain"),
+                    "staking_info_address": contract_addresses.get("staking_info"),
+                    "state_sender_address": contract_addresses.get("state_sender"),
                 }
                 | cl_type_specific_data,
             ),

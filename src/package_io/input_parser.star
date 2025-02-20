@@ -36,6 +36,7 @@ DEFAULT_ETHEREUM_PACKAGE_ARGS = {
         "preset": "minimal",
         "seconds_per_slot": 1,
         "network_id": constants.DEFAULT_L1_CHAIN_ID,
+        "prefunded_accounts": "",
     },
 }
 
@@ -135,8 +136,6 @@ def _parse_polygon_pos_args(plan, polygon_pos_args):
     if polygon_pos_args:
         polygon_pos_args = dict(polygon_pos_args)
 
-    sanity_check.sanity_check_polygon_args(plan, polygon_pos_args)
-
     # Parse the polygon pos input args and set defaults if needed.
     result = {}
 
@@ -152,7 +151,8 @@ def _parse_polygon_pos_args(plan, polygon_pos_args):
     additional_services = polygon_pos_args.get("additional_services", [])
     result["additional_services"] = _parse_additional_services(additional_services)
 
-    # Sort the dict and return the result.
+    # Sanity check and return the result.
+    sanity_check.sanity_check_polygon_args(plan, result)
     return _sort_dict_by_values(result)
 
 
@@ -160,8 +160,6 @@ def _parse_dev_args(plan, dev_args):
     # Create a mutable copy of dev_args.
     if dev_args:
         dev_args = dict(dev_args)
-
-    sanity_check.sanity_check_dev_args(plan, dev_args)
 
     # Set default params if not provided.
     if "should_deploy_l1" not in dev_args:
@@ -172,19 +170,18 @@ def _parse_dev_args(plan, dev_args):
             "should_deploy_matic_contracts", True
         )
 
-    # Sort the dict and return the result.
+    # Sanity check and return the result.
+    sanity_check.sanity_check_dev_args(plan, dev_args)
     return _sort_dict_by_values(dev_args)
 
 
 def _parse_participants(participants):
+    devnet_cl_type = ""
     participants_with_defaults = []
 
     # Set default participant if not provided.
     if len(participants) == 0:
         participants = DEFAULT_POLYGON_POS_PACKAGE_ARGS.get("participants", [])
-
-    # Determine the devnet CL type.
-    devnet_cl_type = participants[0].get("cl_type")
 
     for p in participants:
         # Create a mutable copy of participant.
@@ -215,6 +212,10 @@ def _parse_participants(participants):
         # Fill in any missing fields with default values.
         for k, v in DEFAULT_POLYGON_POS_PARTICIPANT.items():
             p.setdefault(k, v)
+
+        # Set devnet CL type using the first participant CL type.
+        if devnet_cl_type == "":
+            devnet_cl_type = p.get("cl_type")
 
         # Make sure that CL types have not been mixed.
         if p.get("cl_type") != devnet_cl_type:

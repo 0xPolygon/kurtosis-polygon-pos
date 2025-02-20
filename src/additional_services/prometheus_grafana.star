@@ -43,7 +43,7 @@ def get_l2_config(plan, participants):
     validator_index = 0
 
     for participant in participants:
-        for _ in range(participant.get("count", 1)):
+        for _ in range(participant.get("count")):
             el_node_name = el_cl_launcher._generate_el_node_name(
                 participant, participant_index + 1
             )
@@ -54,7 +54,7 @@ def get_l2_config(plan, participants):
             )
 
             participant_index += 1
-            if not participant.get("is_validator", False):
+            if not participant.get("is_validator"):
                 continue
 
             cl_node_name = el_cl_launcher._generate_cl_node_name(

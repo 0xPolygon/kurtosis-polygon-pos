@@ -26,7 +26,7 @@ def launch(
     el_static_nodes,
     el_chain_id,
 ):
-    is_validator = participant.get("is_validator", False)
+    is_validator = participant.get("is_validator")
     bor_node_config_artifact = plan.render_templates(
         name="{}-node-config".format(el_node_name),
         config={
@@ -41,7 +41,7 @@ def launch(
                     "address": el_account.eth_tendermint.address,
                     "cl_node_url": cl_node_url,
                     "log_level_to_int": log_level_to_int(
-                        participant.get("el_log_level", "")
+                        participant.get("el_log_level")
                     ),
                     # network params
                     "static_nodes": str(el_static_nodes),

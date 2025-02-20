@@ -26,12 +26,10 @@ def launch(
                 ),
                 data={
                     # Network params.
-                    "span_poll_interval": network_params.get(
-                        "cl_span_poll_interval", ""
-                    ),
-                    "checkpoint_poll_interval": network_params[
+                    "span_poll_interval": network_params.get("cl_span_poll_interval"),
+                    "checkpoint_poll_interval": network_params.get(
                         "cl_checkpoint_poll_interval"
-                    ],
+                    ),
                     # URLs.
                     "amqp_url": amqp_url,
                     "el_rpc_url": el_rpc_url,
@@ -47,7 +45,7 @@ def launch(
                     "{}/client.toml".format(HEIMDALL_TEMPLATES_FOLDER_PATH),
                 ),
                 data={
-                    "cl_chain_id": network_params.get("cl_chain_id", ""),
+                    "cl_chain_id": network_params.get("cl_chain_id"),
                     "cometbft_rpc_port_number": cl_shared.CL_RPC_PORT_NUMBER,
                 },
             ),
@@ -58,7 +56,7 @@ def launch(
                 data={
                     # Node params.
                     "moniker": cl_node_name,
-                    "log_level": participant.get("cl_log_level", ""),
+                    "log_level": participant.get("cl_log_level"),
                     "persistent_peers": cl_node_ids,
                     # Port numbers.
                     "proxy_app_port_number": cl_shared.CL_PROXY_LISTEN_PORT_NUMBER,

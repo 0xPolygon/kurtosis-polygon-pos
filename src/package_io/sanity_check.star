@@ -73,11 +73,11 @@ def sanity_check_polygon_args(plan, input_args):
     _validate_list(input_args, "additional_services")
 
     # Validate values.
-    network_params = input_args.get("network_params", {})
-    cl_chain_id = network_params.get("cl_chain_id", "")
-    el_chain_id = network_params.get("el_chain_id", "")
+    network_params = input_args.get("network_params")
+    cl_chain_id = network_params.get("cl_chain_id")
+    el_chain_id = network_params.get("el_chain_id")
     validate_chain_ids(cl_chain_id, el_chain_id)
-    for p in input_args.get("participants", []):
+    for p in input_args.get("participants"):
         _validate_participant(p)
 
     plan.print("Sanity check passed")
@@ -92,32 +92,30 @@ def sanity_check_dev_args(plan, input_args):
             )
 
     # Validate values.
-    should_deploy_l1 = input_args.get("should_deploy_l1", True)
-    should_deploy_matic_contracts = input_args.get(
-        "should_deploy_matic_contracts", True
-    )
+    should_deploy_l1 = input_args.get("should_deploy_l1")
+    should_deploy_matic_contracts = input_args.get("should_deploy_matic_contracts")
 
     if not should_deploy_l1:
-        l1_private_key = input_args.get("l1_private_key", "")
+        l1_private_key = input_args.get("l1_private_key")
         if l1_private_key == "" and should_deploy_matic_contracts:
             fail(
                 "`dev.l1_private_key` must be specified when `dev.should_deploy_l1` is set to false and `dev.should_deploy_matic_contracts` is set to true!"
             )
 
-        l1_rpc_url = input_args.get("l1_rpc_url", "")
+        l1_rpc_url = input_args.get("l1_rpc_url")
         if l1_rpc_url == "":
             fail(
                 "`dev.l1_rpc_url` must be specified when `dev.should_deploy_l1` is set to false!"
             )
 
     if not should_deploy_matic_contracts:
-        l2_el_genesis_filepath = input_args.get("l2_el_genesis_filepath", "")
+        l2_el_genesis_filepath = input_args.get("l2_el_genesis_filepath")
         if l2_el_genesis_filepath == "":
             fail(
                 "`dev.l2_el_genesis_filepath` must be specified when `dev.should_deploy_matic_contracts` is set to false!"
             )
 
-        l2_cl_genesis_filepath = input_args.get("l2_cl_genesis_filepath", "")
+        l2_cl_genesis_filepath = input_args.get("l2_cl_genesis_filepath")
         if l2_cl_genesis_filepath == "":
             fail(
                 "`dev.l2_cl_genesis_filepath` must be specified when `dev.should_deploy_matic_contracts` is set to false!"
@@ -225,12 +223,12 @@ def _validate_participant(p):
         constants.LOG_LEVEL.info,
         constants.LOG_LEVEL.debug,
     ]
-    if p.get("cl_type", "") == constants.CL_TYPE.heimdall and p.get(
-        "cl_log_level", ""
+    if p.get("cl_type") == constants.CL_TYPE.heimdall and p.get(
+        "cl_log_level"
     ) not in heimdall_v1_log_levels + [""]:
         fail(
             'Heimdall (v1) does not support "{}" log level. Valid log levels are: "{}"'.format(
-                p.get("cl_log_level", ""), heimdall_v1_log_levels
+                p.get("cl_log_level"), heimdall_v1_log_levels
             )
         )
 

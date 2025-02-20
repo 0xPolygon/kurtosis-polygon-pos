@@ -26,8 +26,8 @@ def launch(
     l1_rpc_url,
     devnet_cl_type,
 ):
-    network_params = polygon_pos_args.get("network_params", {})
-    setup_images = polygon_pos_args.get("setup_images", {})
+    network_params = polygon_pos_args.get("network_params")
+    setup_images = polygon_pos_args.get("setup_images")
 
     el_launchers = {
         "bor": {
@@ -69,9 +69,9 @@ def launch(
     participant_index = 0
     validator_index = 0
     for _, participant in enumerate(participants):
-        for _ in range(participant.get("count", 1)):
+        for _ in range(participant.get("count")):
             # Get the CL launcher.
-            cl_type = participant.get("cl_type", "")
+            cl_type = participant.get("cl_type")
             if cl_type not in cl_launchers:
                 fail(
                     "Unsupported CL launcher '{0}', need one of '{1}'".format(
@@ -82,7 +82,7 @@ def launch(
             cl_launch_method = cl_launchers[cl_type]["launch_method"]
 
             # Get the EL launcher.
-            el_type = participant.get("el_type", "")
+            el_type = participant.get("el_type")
             if el_type not in el_launchers:
                 fail(
                     "Unsupported EL launcher '{0}', need one of '{1}'".format(
@@ -99,7 +99,7 @@ def launch(
             )
 
             # If the participant is a validator, launch the CL node and it's dedicated AMQP server.
-            if participant.get("is_validator", False):
+            if participant.get("is_validator"):
                 rabbitmq_name = _generate_amqp_name(participant_index + 1)
                 rabbitmq_service = plan.add_service(
                     name=rabbitmq_name,
@@ -138,7 +138,7 @@ def launch(
             # Launch the EL node.
             el_validator_config_artifact = (
                 validator_config_artifacts.el_configs[validator_index]
-                if participant.get("is_validator", False)
+                if participant.get("is_validator")
                 else None
             )
             el_context = el_launch_method(
@@ -150,12 +150,12 @@ def launch(
                 cl_api_url,
                 pre_funded_accounts.PRE_FUNDED_ACCOUNTS[participant_index],
                 network_data.el_static_nodes,
-                network_params.get("el_chain_id", ""),
+                network_params.get("el_chain_id"),
             )
 
             # Increment the indexes.
             participant_index += 1
-            if participant.get("is_validator", False):
+            if participant.get("is_validator"):
                 validator_index += 1
 
 
@@ -175,8 +175,8 @@ def _prepare_network_data(participants):
     participant_index = 0
     validator_index = 0
     for _, participant in enumerate(participants):
-        for _ in range(participant.get("count", 1)):
-            if participant.get("is_validator", False):
+        for _ in range(participant.get("count")):
+            if participant.get("is_validator"):
                 cl_node_name = _generate_cl_node_name(
                     participant, participant_index + 1
                 )
@@ -262,8 +262,8 @@ def _generate_validator_config(
     polygon_pos_args,
     devnet_cl_type,
 ):
-    setup_images = polygon_pos_args.get("setup_images", {})
-    network_params = polygon_pos_args.get("network_params", {})
+    setup_images = polygon_pos_args.get("setup_images")
+    network_params = polygon_pos_args.get("network_params")
 
     # Generate CL validators configuration such as the public/private keys and node identifiers.
     validator_config_generator_artifact = plan.upload_files(
@@ -277,7 +277,7 @@ def _generate_validator_config(
         image=setup_images.get("validator_config_generator"),
         env_vars={
             "DEVNET_CL_TYPE": devnet_cl_type,
-            "CL_CHAIN_ID": network_params.get("cl_chain_id", ""),
+            "CL_CHAIN_ID": network_params.get("cl_chain_id"),
             "CL_CLIENT_CONFIG_PATH": constants.CL_CLIENT_CONFIG_PATH,
             "EL_CLIENT_CONFIG_PATH": constants.EL_CLIENT_CONFIG_PATH,
             "CL_VALIDATORS_CONFIGS": cl_validator_configs_str,
@@ -322,7 +322,7 @@ def _read_cl_persistent_peers(plan, cl_persistent_peers_artifact):
 
 def _generate_cl_node_name(participant, id):
     return "l2-cl-{}-{}-{}-validator".format(
-        id, participant.get("cl_type", ""), participant.get("el_type", "")
+        id, participant.get("cl_type"), participant.get("el_type")
     )
 
 
@@ -333,7 +333,7 @@ def _generate_amqp_name(id):
 def _generate_el_node_name(participant, id):
     return "l2-el-{}-{}-{}-{}".format(
         id,
-        participant.get("el_type", ""),
-        participant.get("cl_type", ""),
-        "validator" if participant.get("is_validator", False) else "rpc",
+        participant.get("el_type"),
+        participant.get("cl_type"),
+        "validator" if participant.get("is_validator") else "rpc",
     )
