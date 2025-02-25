@@ -22,6 +22,7 @@ Optional features:
   - [Prerequisites](#prerequisites)
   - [Deploy](#deploy)
   - [Interact](#interact)
+  - [Test](#test)
   - [Make Changes](#make-changes)
   - [Tear Down](#tear-down)
 - [Configuration](#configuration)
@@ -143,6 +144,29 @@ In the same way, you might want to check the MATIC contract addresses on L1 and 
 
 ```bash
 kurtosis files inspect pos-devnet matic-contract-addresses contractAddresses.json | tail -n +2 | jq
+```
+
+### Test
+
+Trigger a state sync.
+
+```bash
+export L1_RPC_URL="http://$(kurtosis port print pos-devnet el-1-geth-lighthouse rpc)"
+matic_contract_addresses=$(kurtosis files inspect pos-devnet matic-contract-addresses contractAddresses.json | tail -n +2 | jq)
+export L1_DEPOSIT_MANAGER_PROXY_ADDRESS=$(echo $matic_contract_addresses | jq --raw-output '.root.DepositManagerProxy')
+export ERC20_TOKEN_ADDRESS=$(echo $matic_contract_addresses | jq --raw-output '.root.tokens.MaticToken')
+export FUNDER_PRIVATE_KEY="0xd40311b5a5ca5eaeb48dfba5403bde4993ece8eccf4190e98e19fcd4754260ea" # unless it has been changed.
+bash ./scripts/send_state_sync.sh
+```
+
+Monitor state syncs.
+
+```bash
+export L2_CL_API_URL=$(kurtosis port print pos-devnet l2-cl-1-heimdall-bor-validator http)
+export L2_CL_NODE_TYPE=heimdall
+export L2_RPC_URL=$(kurtosis port print pos-devnet l2-el-1-bor-heimdall-validator rpc)
+export L2_STATE_RECEIVER_ADDRESS=$(kurtosis files inspect pos-devnet l2-el-genesis genesis.json | tail -n +2 | jq --raw-output '.config.bor.stateReceiverContract')
+bash ./scripts/check_state_sync.sh
 ```
 
 ### Make Changes

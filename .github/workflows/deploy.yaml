@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  KURTOSIS_VERSION: "1.5.0"
+  KURTOSIS_VERSION: "1.4.4"
   FOUNDRY_VERSION: stable
   ENCLAVE_NAME: pos
 
@@ -56,6 +56,22 @@ jobs:
         env:
           ENCLAVE: ${{ env.ENCLAVE_NAME }}
         run: bash scripts/discover.sh && bash scripts/monitor.sh
+
+      - name: Test state syncs
+        run: |
+          export L1_RPC_URL="http://$(kurtosis port print ${{ env.ENCLAVE_NAME }} el-1-geth-lighthouse rpc)"
+          matic_contract_addresses=$(kurtosis files inspect ${{ env.ENCLAVE_NAME }} matic-contract-addresses contractAddresses.json | tail -n +2 | jq)
+          export L1_DEPOSIT_MANAGER_PROXY_ADDRESS=$(echo $matic_contract_addresses | jq --raw-output '.root.DepositManagerProxy')
+          export ERC20_TOKEN_ADDRESS=$(echo $matic_contract_addresses | jq --raw-output '.root.tokens.MaticToken')
+          export FUNDER_PRIVATE_KEY="0xd40311b5a5ca5eaeb48dfba5403bde4993ece8eccf4190e98e19fcd4754260ea" # unless it has been changed.
+          bash ./scripts/send_state_sync.sh
+          echo
+
+          export L2_CL_API_URL=$(kurtosis port print ${{ env.ENCLAVE_NAME }} l2-cl-1-heimdall-bor-validator http)
+          export L2_CL_NODE_TYPE=heimdall
+          export L2_RPC_URL=$(kurtosis port print ${{ env.ENCLAVE_NAME }} l2-el-1-bor-heimdall-validator rpc)
+          export L2_STATE_RECEIVER_ADDRESS=$(kurtosis files inspect ${{ env.ENCLAVE_NAME }} l2-el-genesis genesis.json | tail -n +2 | jq --raw-output '.config.bor.stateReceiverContract')
+          bash ./scripts/check_state_sync.sh
 
       - name: Dump enclave
         if: always()
@@ -152,6 +168,33 @@ jobs:
           fi
           bash scripts/monitor.sh
 
+      - name: Test state syncs
+        run: |
+          export L1_RPC_URL="http://$(kurtosis port print ${{ env.ENCLAVE_NAME }} el-1-geth-lighthouse rpc)"
+          matic_contract_addresses=$(kurtosis files inspect ${{ env.ENCLAVE_NAME }} matic-contract-addresses contractAddresses.json | tail -n +2 | jq)
+          export L1_DEPOSIT_MANAGER_PROXY_ADDRESS=$(echo $matic_contract_addresses | jq --raw-output '.root.DepositManagerProxy')
+          export ERC20_TOKEN_ADDRESS=$(echo $matic_contract_addresses | jq --raw-output '.root.tokens.MaticToken')
+          export FUNDER_PRIVATE_KEY="0xd40311b5a5ca5eaeb48dfba5403bde4993ece8eccf4190e98e19fcd4754260ea" # unless it has been changed.
+          bash ./scripts/send_state_sync.sh
+          echo
+
+          cl_type=$(yq --raw-output '.polygon_pos_package.participants[0].cl_type' ${{ matrix.file_name }})
+          if [[ "${cl_type}" == "null" ]]; then
+            cl_type="heimdall"
+          fi
+          el_type=$(yq --raw-output '.polygon_pos_package.participants[0].el_type' ${{ matrix.file_name }})
+          if [[ "${el_type}" == "null" ]]; then
+            el_type="bor"
+          fi
+          cl_node_name="l2-cl-1-${cl_type}-${el_type}-validator"
+          el_node_name="l2-el-1-${el_type}-${cl_type}-validator"
+
+          export L2_CL_API_URL=$(kurtosis port print ${{ env.ENCLAVE_NAME }} "${cl_node_name}" http)
+          export L2_CL_NODE_TYPE="${cl_type}"
+          export L2_RPC_URL=$(kurtosis port print ${{ env.ENCLAVE_NAME }} "${el_node_name}" rpc)
+          export L2_STATE_RECEIVER_ADDRESS=$(kurtosis files inspect ${{ env.ENCLAVE_NAME }} l2-el-genesis genesis.json | tail -n +2 | jq --raw-output '.config.bor.stateReceiverContract')
+          bash ./scripts/check_state_sync.sh
+
       - name: Dump enclave
         if: always()
         run: kurtosis enclave dump ${{ env.ENCLAVE_NAME }} ./dump
@@ -216,6 +259,22 @@ jobs:
           ENCLAVE: ${{ env.ENCLAVE_NAME }}
         run: bash scripts/discover.sh && bash scripts/monitor.sh
 
+      - name: Test state syncs
+        run: |
+          export L1_RPC_URL="http://$(kurtosis port print ${{ env.ENCLAVE_NAME }} el-1-geth-lighthouse rpc)"
+          matic_contract_addresses=$(kurtosis files inspect ${{ env.ENCLAVE_NAME }} matic-contract-addresses contractAddresses.json | tail -n +2 | jq)
+          export L1_DEPOSIT_MANAGER_PROXY_ADDRESS=$(echo $matic_contract_addresses | jq --raw-output '.root.DepositManagerProxy')
+          export ERC20_TOKEN_ADDRESS=$(echo $matic_contract_addresses | jq --raw-output '.root.tokens.MaticToken')
+          export FUNDER_PRIVATE_KEY="0xd40311b5a5ca5eaeb48dfba5403bde4993ece8eccf4190e98e19fcd4754260ea" # unless it has been changed.
+          bash ./scripts/send_state_sync.sh
+          echo
+
+          export L2_CL_API_URL=$(kurtosis port print ${{ env.ENCLAVE_NAME }} l2-cl-1-heimdall-bor-validator http)
+          export L2_CL_NODE_TYPE=heimdall
+          export L2_RPC_URL=$(kurtosis port print ${{ env.ENCLAVE_NAME }} l2-el-1-bor-heimdall-validator rpc)
+          export L2_STATE_RECEIVER_ADDRESS=$(kurtosis files inspect ${{ env.ENCLAVE_NAME }} l2-el-genesis genesis.json | tail -n +2 | jq --raw-output '.config.bor.stateReceiverContract')
+          bash ./scripts/check_state_sync.sh
+
       - name: Dump enclave
         if: always()
         run: kurtosis enclave dump ${{ env.ENCLAVE_NAME }} ./dump
@@ -268,6 +327,22 @@ jobs:
         env:
           ENCLAVE: ${{ env.ENCLAVE_NAME }}
         run: bash scripts/discover.sh && bash scripts/monitor.sh
+
+      - name: Test state syncs
+        run: |
+          export L1_RPC_URL="http://$(kurtosis port print ${{ env.ENCLAVE_NAME }} el-1-geth-lighthouse rpc)"
+          matic_contract_addresses=$(kurtosis files inspect ${{ env.ENCLAVE_NAME }} matic-contract-addresses contractAddresses.json | tail -n +2 | jq)
+          export L1_DEPOSIT_MANAGER_PROXY_ADDRESS=$(echo $matic_contract_addresses | jq --raw-output '.root.DepositManagerProxy')
+          export ERC20_TOKEN_ADDRESS=$(echo $matic_contract_addresses | jq --raw-output '.root.tokens.MaticToken')
+          export FUNDER_PRIVATE_KEY="0xd40311b5a5ca5eaeb48dfba5403bde4993ece8eccf4190e98e19fcd4754260ea" # unless it has been changed.
+          bash ./scripts/send_state_sync.sh
+          echo
+
+          export L2_CL_API_URL=$(kurtosis port print ${{ env.ENCLAVE_NAME }} l2-cl-1-heimdall-bor-validator http)
+          export L2_CL_NODE_TYPE=heimdall
+          export L2_RPC_URL=$(kurtosis port print ${{ env.ENCLAVE_NAME }} l2-el-1-bor-heimdall-validator rpc)
+          export L2_STATE_RECEIVER_ADDRESS=$(kurtosis files inspect ${{ env.ENCLAVE_NAME }} l2-el-genesis genesis.json | tail -n +2 | jq --raw-output '.config.bor.stateReceiverContract')
+          bash ./scripts/check_state_sync.sh
 
       - name: Dump enclave
         if: always()
