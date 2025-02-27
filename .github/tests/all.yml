@@ -27,6 +27,11 @@ polygon_pos_package:
     - el_type: bor
       cl_type: heimdall
       is_validator: false
+      count: 2
+    - cl_type: heimdall
+      el_type: erigon
+      is_validator: false
+      count: 2
   setup_images:
     contract_deployer: leovct/pos-contract-deployer:node-16
     el_genesis_builder: leovct/pos-el-genesis-builder:node-16
