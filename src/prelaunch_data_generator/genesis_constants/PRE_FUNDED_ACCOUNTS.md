@@ -7,7 +7,7 @@ Here are the commands to generate such accounts.
 First, start a docker container that contains the different utils such as `polycli`, `jq` and `heimdallcli`.
 
 ```bash
-docker run -it --rm --volume "$(pwd):/tmp" --workdir /tmp leovct/pos-validator-config-generator:1.2.0-e0a87ca
+docker run -it --rm --volume "$(pwd):/tmp" --workdir /tmp leovct/pos-validator-config-generator:1.2.0-0.1.3
 ```
 
 Inside the docker container, execute the following script to generate the accounts.
