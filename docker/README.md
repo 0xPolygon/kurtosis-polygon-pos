@@ -29,7 +29,7 @@ docker push leovct/pos-el-genesis-builder:node-16
 
 ```bash
 heimdall_version="1.2.0"
-heimdall_v2_version="22a3f1d"
+heimdall_v2_version="0.1.3"
 tag="${heimdall_version}-${heimdall_v2_version}"
 docker build \
   --build-arg HEIMDALL_VERSION="${heimdall_version}" \
@@ -40,22 +40,13 @@ docker build \
 docker push "leovct/pos-validator-config-generator:${tag}"
 ```
 
-## Heimdall V2
+## Bor modified for heimdall-v2
 
 Docker Hub:
 
-- [heimdall-v2](https://hub.docker.com/r/leovct/heimdall-v2)
 - [bor-modified-for-heimdall-v2](https://hub.docker.com/r/leovct/bor-modified-for-heimdall-v2)
 
 ```bash
-# heimdall-v2
-git clone git@github.com:0xPolygon/heimdall-v2.git
-pushd heimdall-v2
-tag="22a3f1d" # 19/02/2025
-git checkout "${tag}"
-docker build --tag "leovct/heimdall-v2:${tag}" --file Dockerfile .
-docker push "leovct/heimdall-v2:${tag}"
-
 # bor-modified-for-heimdall-v2
 git clone --branch raneet10/heimdallv2-changes git@github.com:maticnetwork/bor.git
 pushd bor
