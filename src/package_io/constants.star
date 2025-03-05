@@ -27,7 +27,7 @@ ADDITIONAL_SERVICES = struct(
 )
 
 # Package dependencies.
-ETHEREUM_PACKAGE = "github.com/ethpandaops/ethereum-package/main.star@4.4.0"
+ETHEREUM_PACKAGE = "github.com/ethpandaops/ethereum-package/main.star@4.5.0"
 PROMETHEUS_PACKAGE = "github.com/kurtosis-tech/prometheus-package/main.star@f5ce159aec728898e3deb827f6b921f8ecfc527f"
 GRAFANA_PACKAGE = "github.com/kurtosis-tech/grafana-package/main.star@cc66468b167d16c0fc7153980be5b67550be01be"
 
