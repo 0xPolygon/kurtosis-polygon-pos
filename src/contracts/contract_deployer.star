@@ -121,6 +121,11 @@ def _determine_contract_deployer_config_filepath(contract_deployer_image):
         )
 
     node_version = result[1]
+    # TODO: Remove this hack once the following PR is merged.
+    # https://github.com/0xPolygon/pos-contracts/pull/30
+    # And once the new contract deployer image is released.
+    if node_version == "node-20-fix":
+        node_version = "node-20"
     supported_versions = ["node-16", "node-20"]
     if node_version not in supported_versions:
         fail(

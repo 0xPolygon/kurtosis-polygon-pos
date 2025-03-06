@@ -19,8 +19,11 @@ RUN apt-get update \
   && /root/.foundry/bin/foundryup --install "stable" \
   && cp /root/.foundry/bin/* /usr/local/bin \
   # Prepare pos contracts.
-  && git clone --branch arya/matic-cli/pos-1869 https://github.com/0xPolygon/pos-contracts . \
-  && git checkout 4a361e7 \
+  # TODO: Use the correct branch once the PR has been merged.
+  # https://github.com/0xPolygon/pos-contracts/pull/30
+  && git clone --branch fix/update-child-chain-and-state-sender-with-same-values https://github.com/leovct/pos-contracts . \
+  # && git clone --branch arya/matic-cli/pos-1869 https://github.com/0xPolygon/pos-contracts . \
+  # && git checkout 1871a41 \
   # Remove [etherscan] section from foundry.toml
   && sed -i '/^\[etherscan\]/,/^$/d' foundry.toml \
   && npm install \
