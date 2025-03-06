@@ -252,7 +252,7 @@ polygon_pos_package:
       # Defaults by client:
       # - bor: "0xpolygon/bor:1.5.5"
       # - bor-modified-for-heimdall-v2: "leovct/bor-modified-for-heimdall-v2:1724778"
-      # - erigon: TBD
+      # - erigon: "erigontech/erigon:v2.61.3"
       el_image: 0xpolygon/bor:1.5.5
 
       # The log level string that this participant's EL client should log at.

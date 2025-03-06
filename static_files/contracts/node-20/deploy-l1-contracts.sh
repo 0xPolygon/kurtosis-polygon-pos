@@ -46,13 +46,13 @@ echo "Deploying Polygon PoS contracts to L1, draining StakeManager and initialis
 export DEPLOYER_PRIVATE_KEY="${PRIVATE_KEY}"
 export HEIMDALL_ID="${CL_CHAIN_ID}"
 
-forge script --rpc-url "${L1_RPC_URL}" --broadcast \
+forge script --rpc-url "${L1_RPC_URL}" --verbosity 5 --broadcast \
   scripts/deployment-scripts/deployContracts.s.sol:DeploymentScript
 
-forge script --rpc-url "${L1_RPC_URL}" --broadcast \
+forge script --rpc-url "${L1_RPC_URL}" --verbosity 5 --broadcast \
   scripts/deployment-scripts/drainStakeManager.s.sol:DrainStakeManagerDeployment
 
-forge script --rpc-url "${L1_RPC_URL}" --broadcast \
+forge script --rpc-url "${L1_RPC_URL}" --verbosity 5 --broadcast \
   scripts/deployment-scripts/initializeState.s.sol:InitializeStateScript
 
 echo "Polygon PoS contracts deployed to L1:"
@@ -91,7 +91,7 @@ echo "Staking for each validator node..."
 IFS=';' read -ra validator_accounts <<<"${VALIDATOR_ACCOUNTS}"
 for account in "${validator_accounts[@]}"; do
   IFS=',' read -r address eth_public_key <<<"${account}"
-  forge script --rpc-url "${L1_RPC_URL}" --broadcast -vvvv \
+  forge script --rpc-url "${L1_RPC_URL}" --verbosity 5 --broadcast \
     scripts/matic-cli-scripts/stake.s.sol:MaticStake \
     --sig "run(address,bytes,uint256,uint256)" \
     "${address}" "${eth_public_key}" "${VALIDATOR_STAKE_AMOUNT}" "${VALIDATOR_TOP_UP_FEE_AMOUNT}"
