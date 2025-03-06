@@ -1,7 +1,3 @@
-ethereum_package = import_module(
-    "github.com/ethpandaops/ethereum-package/main.star@4.4.0"
-)
-
 account_util = import_module(
     "./src/prelaunch_data_generator/genesis_constants/account.star"
 )
@@ -262,7 +258,7 @@ def deploy_local_l1(plan, ethereum_args, preregistered_validator_keys_mnemonic):
     }
 
     # Deploy the ethereum package.
-    l1 = ethereum_package.run(plan, ethereum_args)
+    l1 = import_module(constants.ETHEREUM_PACKAGE).run(plan, ethereum_args)
     plan.print(l1)
     if len(l1.all_participants) < 1:
         fail("The L1 package did not start any participants.")

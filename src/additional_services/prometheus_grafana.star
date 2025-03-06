@@ -1,9 +1,4 @@
-prometheus_package = import_module(
-    "github.com/kurtosis-tech/prometheus-package/main.star"
-)
-grafana_package = import_module(
-    "github.com/kurtosis-tech/grafana-package/main.star@cc66468b167d16c0fc7153980be5b67550be01be"
-)
+constants = import_module("../package_io/constants.star")
 contract_util = import_module("../contracts/util.star")
 el_cl_launcher = import_module("../el_cl_launcher.star")
 
@@ -148,7 +143,7 @@ def launch(
 
     metrics_jobs = get_metrics_jobs(plan)
 
-    prometheus_url = prometheus_package.run(
+    prometheus_url = import_module(constants.PROMETHEUS_PACKAGE).run(
         plan,
         metrics_jobs,
         name="prometheus",
@@ -166,7 +161,7 @@ def launch(
         src=GRAFANA_DASHBOARDS, name="grafana-dashboards"
     )
 
-    grafana_package.run(
+    import_module(constants.GRAFANA_PACKAGE).run(
         plan,
         prometheus_url,
         name="grafana",
