@@ -30,7 +30,7 @@ polygon_pos_package:
   setup_images:
     contract_deployer: leovct/pos-contract-deployer:node-16
     el_genesis_builder: leovct/pos-el-genesis-builder:node-16
-    validator_config_generator: leovct/pos-validator-config-generator:1.2.0-e0a87ca
+    validator_config_generator: leovct/pos-validator-config-generator:1.2.0-0.1.3
   network_params:
     ## Validators parameters.
     preregistered_validator_keys_mnemonic: sibling lend brave explain wait orbit mom alcohol disorder message grace sun
