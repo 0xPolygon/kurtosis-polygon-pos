@@ -16,7 +16,7 @@ ethereum_package:
 polygon_pos_package:
   participants:
     - el_type: bor
-      el_image: 0xpolygon/bor:1.5.5
+      el_image: 0xpolygon/bor:2.0.0
       el_log_level: info
       cl_type: heimdall
       cl_image: 0xpolygon/heimdall:1.2.0

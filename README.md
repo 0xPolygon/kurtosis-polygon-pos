@@ -250,10 +250,10 @@ polygon_pos_package:
       # The docker image that should be used for the EL client.
       # Leave blank to use the default image for the client type.
       # Defaults by client:
-      # - bor: "0xpolygon/bor:1.5.5"
+      # - bor: "0xpolygon/bor:2.0.0"
       # - bor-modified-for-heimdall-v2: "leovct/bor-modified-for-heimdall-v2:1724778"
       # - erigon: TBD
-      el_image: 0xpolygon/bor:1.5.5
+      el_image: 0xpolygon/bor:2.0.0
 
       # The log level string that this participant's EL client should log at.
       # Leave blank to use the default log level, info.
@@ -337,7 +337,7 @@ polygon_pos_package:
     # The EL network id.
     # Default: "4927"
     # Note: it must be a string!
-    el_chain_id: ""
+    el_chain_id: "4927"
     # The number of seconds per block on the EL chain.
     # Default: 2
     el_block_interval_seconds: 2

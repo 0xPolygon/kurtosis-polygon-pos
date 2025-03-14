@@ -5,7 +5,7 @@ el_cl_launcher = import_module("../el_cl_launcher.star")
 PROMETHEUS_IMAGE = "prom/prometheus:v3.2.0"
 GRAFANA_VERSION = "11.5.2"
 GRAFANA_DASHBOARDS = "../../static_files/grafana/dashboards"
-PANOPTICHAIN_IMAGE = "0xpolygon/panoptichain:v1.2.1"  # https://github.com/0xPolygon/panoptichain/releases
+PANOPTICHAIN_IMAGE = "ghcr.io/0xpolygon/panoptichain:v1.2.2"  # https://github.com/0xPolygon/panoptichain/releases
 
 
 def get_metrics_jobs(plan):
