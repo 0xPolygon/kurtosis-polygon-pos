@@ -120,7 +120,7 @@ def _determine_contract_deployer_config_filepath(contract_deployer_image):
             )
         )
 
-    result = tag.split("-")
+    result = tag[1].split("-")
     if len(result) < 2:
         fail(
             'The contract deployer image: does not follow the standard "leovct/pos-contract-deployer:node-<node-version>-.*": {}'.format(
