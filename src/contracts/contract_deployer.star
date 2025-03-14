@@ -112,21 +112,25 @@ def _format_validator_accounts(accounts):
 def _determine_contract_deployer_config_filepath(contract_deployer_image):
     # The contract deployer image follows the standard: leovct/pos-contract-deployer:<node-version>
     # where the version can either be "node-16" or "node-20".
-    result = contract_deployer_image.split(":")
-    if len(result) != 2:
+    tag = contract_deployer_image.split(":")
+    if len(tag) != 2:
         fail(
-            'The contract deployer image does not follow the standard "leovct/pos-contract-deployer:<node-version>": {}'.format(
+            'The contract deployer image: does not follow the standard "leovct/pos-contract-deployer:node-<node-version>-.*": {}'.format(
                 contract_deployer_image
             )
         )
 
-    node_version = result[1]
-    # TODO: Remove this hack once the following PR is merged.
+    result = tag.split("-")
+    if len(result) < 2:
+        fail(
+            'The contract deployer image: does not follow the standard "leovct/pos-contract-deployer:node-<node-version>-.*": {}'.format(
+                contract_deployer_image
+            )
+        )
+    node_version = "{}-{}".format(result[0], result[1])
+    # TODO: Remove this node-20-fix hack once the following PR is merged and the new contract deployer image is released.
     # https://github.com/0xPolygon/pos-contracts/pull/30
-    # And once the new contract deployer image is released.
-    if node_version == "node-20-fix":
-        node_version = "node-20"
-    supported_versions = ["node-16", "node-20"]
+    supported_versions = ["node-16", "node-20", "node-20-fix"]
     if node_version not in supported_versions:
         fail(
             'The contract deployer only supports "{}" but got: "{}"'.format(
