@@ -124,7 +124,9 @@
     },
     "milestone": {
       "params": {
-        "max_milestone_proposition_length": "10"
+        "max_milestone_proposition_length": "10",
+        "ff_milestone_threshold": "200",
+        "ff_milestone_block_interval": "100"
       }
     },
     "params": null,
