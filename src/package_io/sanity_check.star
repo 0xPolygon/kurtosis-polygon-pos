@@ -35,7 +35,7 @@ POLYGON_POS_PARAMS = {
     "additional_services": [
         "blockscout",
         "prometheus_grafana",
-        "tx_spammer",
+        "test_runner",
     ],
 }
 
@@ -51,6 +51,7 @@ VALID_CLIENT_COMBINATIONS = {
 DEV_PARAMS = [
     "should_deploy_l1",  # boolean
     "l1_rpc_url",
+    "l1_chain_id",
     "should_deploy_matic_contracts",  # boolean
     "l2_el_genesis_filepath",
     "l2_cl_genesis_filepath",
@@ -102,6 +103,12 @@ def sanity_check_dev_args(plan, input_args):
         if l1_rpc_url == "":
             fail(
                 "`dev.l1_rpc_url` must be specified when `dev.should_deploy_l1` is set to false!"
+            )
+
+        l1_chain_id = str(input_args.get("l1_chain_id"))
+        if l1_chain_id == "":
+            fail(
+                "`dev.l1_chain_id` must be specified when `dev.should_deploy_l1` is set to false!"
             )
 
     if not should_deploy_matic_contracts:

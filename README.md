@@ -187,6 +187,7 @@ dev:
   # Avoid re-deploying the L1 devnet.
   should_deploy_l1: false
   l1_rpc_url: http://el-1-geth-lighthouse:8545
+  l1_chain_id: "3151908"
 
   # Avoid re-deploying the MATIC contracts to L1 and re-generating the L2 CL and EL genesis files.
   should_deploy_matic_contracts: false
@@ -358,6 +359,6 @@ polygon_pos_package:
     # - blockscout
     # A monitoring stack composed of Prometheus and Grafana (will be supported soon).
     - prometheus_grafana
-    # A transaction spammer to send fake transactions to the network (will be supported soon).
-    # - tx_spammer
+    # A test runner based on the agglayer/e2e repository (https://github.com/agglayer/e2e).
+    # - test_runner
 ```

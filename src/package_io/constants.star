@@ -23,13 +23,8 @@ LOG_LEVEL = struct(
 ADDITIONAL_SERVICES = struct(
     blockscout="blockscout",
     prometheus_grafana="prometheus_grafana",
-    tx_spammer="tx_spammer",
+    test_runner="test_runner",
 )
-
-# Package dependencies.
-ETHEREUM_PACKAGE = "github.com/ethpandaops/ethereum-package/main.star@4.4.0"
-PROMETHEUS_PACKAGE = "github.com/kurtosis-tech/prometheus-package/main.star@f5ce159aec728898e3deb827f6b921f8ecfc527f"
-GRAFANA_PACKAGE = "github.com/kurtosis-tech/grafana-package/main.star@cc66468b167d16c0fc7153980be5b67550be01be"
 
 DEFAULT_L1_CHAIN_ID = "3151908"  # 0x301824
 DEFAULT_EL_CHAIN_ID = "4927"

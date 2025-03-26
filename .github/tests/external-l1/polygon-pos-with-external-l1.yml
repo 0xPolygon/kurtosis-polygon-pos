@@ -1,3 +1,4 @@
 dev:
   should_deploy_l1: false
   l1_rpc_url: http://el-1-geth-lighthouse:8545
+  l1_chain_id: 3151908

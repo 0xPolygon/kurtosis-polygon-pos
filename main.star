@@ -5,12 +5,12 @@ blockscout = import_module("./src/additional_services/blockscout.star")
 cl_genesis_generator = import_module(
     "./src/prelaunch_data_generator/cl_genesis/cl_genesis_generator.star"
 )
+constants = import_module("./src/package_io/constants.star")
 contract_deployer = import_module("./src/contracts/contract_deployer.star")
 el_cl_launcher = import_module("./src/el_cl_launcher.star")
 el_genesis_generator = import_module(
     "./src/prelaunch_data_generator/el_genesis/el_genesis_generator.star"
 )
-el_shared = import_module("./src/el/el_shared.star")
 hex = import_module("./src/hex/hex.star")
 input_parser = import_module("./src/package_io/input_parser.star")
 math = import_module("./src/math/math.star")
@@ -18,9 +18,10 @@ pre_funded_accounts = import_module(
     "./src/prelaunch_data_generator/genesis_constants/pre_funded_accounts.star"
 )
 prometheus_grafana = import_module("./src/additional_services/prometheus_grafana.star")
-tx_spammer = import_module("./src/additional_services/tx_spammer.star")
+test_runner = import_module("./src/additional_services/test_runner.star")
 wait = import_module("./src/wait/wait.star")
-constants = import_module("./src/package_io/constants.star")
+
+ETHEREUM_PACKAGE = "github.com/ethpandaops/ethereum-package/main.star@4.4.0"
 
 
 def run(plan, args):
@@ -63,6 +64,7 @@ def run(plan, args):
         if len(l1.all_participants) < 1:
             fail("The L1 package did not start any participants.")
         l1_context = struct(
+            chain_id=l1.network_id,
             private_key=admin_private_key,
             rpc_url=l1.all_participants[0].el_context.rpc_http_url,
             all_participants=l1.all_participants,
@@ -70,6 +72,7 @@ def run(plan, args):
     else:
         plan.print("Using an external l1")
         l1_context = struct(
+            chain_id=dev_args.get("l1_chain_id"),
             private_key=admin_private_key,
             rpc_url=dev_args.get("l1_rpc_url"),
             all_participants=None,
@@ -169,7 +172,7 @@ def run(plan, args):
             participants_count, len(validator_accounts), participants
         )
     )
-    l2_participants = el_cl_launcher.launch(
+    l2_context = el_cl_launcher.launch(
         plan,
         participants,
         polygon_pos_args,
@@ -178,13 +181,14 @@ def run(plan, args):
         l1_context.rpc_url,
         devnet_cl_type,
     )
+    l2_rpc_url = l2_context.all_participants[0].el_context.rpc_http_url
 
     # Deploy MATIC contracts to L2.
     result = contract_deployer.deploy_l2_contracts_and_synchronise_l1_state(
         plan,
         polygon_pos_args,
         l1_context.rpc_url,
-        l2_participants[0].el_context.rpc_http_url,
+        l2_rpc_url,
         admin_private_key,
         l1_contract_addresses_artifact,
     )
@@ -206,14 +210,19 @@ def run(plan, args):
             prometheus_grafana.launch(
                 plan,
                 l1_context,
-                constants.DEFAULT_L1_CHAIN_ID,
-                l2_participants,
-                constants.DEFAULT_EL_CHAIN_ID,
+                l2_context,
                 l2_el_genesis_artifact,
                 contract_addresses_artifact,
             )
-        elif svc == constants.ADDITIONAL_SERVICES.tx_spammer:
-            tx_spammer.launch(plan)
+        elif svc == constants.ADDITIONAL_SERVICES.test_runner:
+            test_runner.launch(
+                plan,
+                l1_context,
+                l2_context,
+                l2_network_params,
+                l2_el_genesis_artifact,
+                contract_addresses_artifact,
+            )
         else:
             fail("Invalid additional service: %s" % (svc))
 
@@ -263,7 +272,7 @@ def deploy_local_l1(plan, ethereum_args, preregistered_validator_keys_mnemonic):
     }
 
     # Deploy the ethereum package.
-    l1 = import_module(constants.ETHEREUM_PACKAGE).run(plan, ethereum_args)
+    l1 = import_module(ETHEREUM_PACKAGE).run(plan, ethereum_args)
     plan.print(l1)
     if len(l1.all_participants) < 1:
         fail("The L1 package did not start any participants.")

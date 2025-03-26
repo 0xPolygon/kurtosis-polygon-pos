@@ -49,4 +49,4 @@ polygon_pos_package:
   additional_services:
     # - blockscout
     - prometheus_grafana
-    # - tx_spammer
+    - test_runner

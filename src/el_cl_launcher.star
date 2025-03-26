@@ -199,7 +199,11 @@ def launch(
     wait.wait_for_l2_startup(plan, first_cl_context.api_url, devnet_cl_type)
 
     # Return the L2 participants and their context.
-    return all_participants
+    return struct(
+        el_chain_id=network_params.get("el_chain_id"),
+        devnet_cl_type=devnet_cl_type,
+        all_participants=all_participants,
+    )
 
 
 def _prepare_network_data(participants):

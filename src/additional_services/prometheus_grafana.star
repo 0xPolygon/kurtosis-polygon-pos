@@ -1,9 +1,9 @@
-constants = import_module("../package_io/constants.star")
 contract_util = import_module("../contracts/util.star")
-el_cl_launcher = import_module("../el_cl_launcher.star")
 
+PROMETHEUS_PACKAGE = "github.com/kurtosis-tech/prometheus-package/main.star@f5ce159aec728898e3deb827f6b921f8ecfc527f"
 PROMETHEUS_IMAGE = "prom/prometheus:v3.2.1"
 
+GRAFANA_PACKAGE = "github.com/kurtosis-tech/grafana-package/main.star@cc66468b167d16c0fc7153980be5b67550be01be"
 GRAFANA_VERSION = "11.5.3"
 GRAFANA_DASHBOARDS = "../../static_files/grafana/dashboards"
 
@@ -15,31 +15,27 @@ PANOPTICHAIN_METRICS_PATH = "/metrics"
 def launch(
     plan,
     l1_context,
-    l1_chain_id,
-    l2_participants,
-    l2_chain_id,
+    l2_context,
     l2_el_genesis_artifact,
     contract_addresses_artifact,
 ):
     panoptichain_url = launch_panoptichain(
         plan,
         l1_context,
-        l1_chain_id,
-        l2_participants,
-        l2_chain_id,
+        l2_context,
         l2_el_genesis_artifact,
         contract_addresses_artifact,
     )
-    prometheus_url = launch_prometheus(plan, l2_participants, panoptichain_url)
+    prometheus_url = launch_prometheus(
+        plan, l2_context.all_participants, panoptichain_url
+    )
     launch_grafana(plan, prometheus_url)
 
 
 def launch_panoptichain(
     plan,
     l1_context,
-    l1_chain_id,
-    l2_participants,
-    l2_chain_id,
+    l2_context,
     l2_el_genesis_artifact,
     contract_addresses_artifact,
 ):
@@ -53,14 +49,15 @@ def launch_panoptichain(
 
     # Retrieve L2 EL and CL urls.
     l2_el_rpcs = {
-        p.el_context.service_name: p.el_context.rpc_http_url for p in l2_participants
+        p.el_context.service_name: p.el_context.rpc_http_url
+        for p in l2_context.all_participants
     }
     l2_cl_urls = {
         p.cl_context.service_name: {
             "heimdall": p.cl_context.api_url,
             "tendermint": p.cl_context.rpc_url,
         }
-        for p in l2_participants
+        for p in l2_context.all_participants
     }
 
     # Retrieve contract addresses.
@@ -86,8 +83,8 @@ def launch_panoptichain(
             "config.yml": struct(
                 template=read_file(src="../../static_files/panoptichain/config.yml"),
                 data={
-                    "l1_chain_id": l1_chain_id,
-                    "l2_chain_id": l2_chain_id,
+                    "l1_chain_id": l1_context.chain_id,
+                    "l2_chain_id": l2_context.el_chain_id,
                     "l1_rpcs": l1_rpcs,
                     "l2_rpcs": l2_el_rpcs,
                     "heimdall_urls": l2_cl_urls,
@@ -116,7 +113,7 @@ def launch_panoptichain(
 
 def launch_prometheus(plan, l2_participants, panoptichain_url):
     metrics_jobs = generate_metrics_jobs(l2_participants, panoptichain_url)
-    return import_module(constants.PROMETHEUS_PACKAGE).run(
+    return import_module(PROMETHEUS_PACKAGE).run(
         plan,
         metrics_jobs,
         name="prometheus",
@@ -156,7 +153,7 @@ def launch_grafana(plan, prometheus_url):
     grafana_dashboards_files_artifact = plan.upload_files(
         src=GRAFANA_DASHBOARDS, name="grafana-dashboards"
     )
-    import_module(constants.GRAFANA_PACKAGE).run(
+    import_module(GRAFANA_PACKAGE).run(
         plan,
         prometheus_url,
         name="grafana",
