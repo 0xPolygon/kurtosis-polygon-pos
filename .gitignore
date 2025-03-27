@@ -1,4 +1,4 @@
-*.yml
+/*.yml
 tmp/
 
 # temporary files
