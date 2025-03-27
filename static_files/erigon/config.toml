@@ -4,7 +4,6 @@ networkid = "{{.el_chain_id}}"
 datadir = "{{.data_folder_path}}"
 staticpeers = "{{.static_nodes}}"
 verbosity = "{{.log_level}}"
-snapshots = false
 nat = "none"
 
 # Bor parameters.

@@ -144,6 +144,9 @@ jobs:
 
       - name: Inspect enclave
         run: kurtosis enclave inspect ${{ env.ENCLAVE_NAME }}
+      
+      - name: Wait 2 minutes to allow erigon rpcs to start
+        run: sleep 120
 
       - name: Check devnet status
         env:
