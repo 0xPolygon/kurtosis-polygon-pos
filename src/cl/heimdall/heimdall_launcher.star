@@ -54,6 +54,9 @@ def launch(
                     "checkpoint_poll_interval": network_params[
                         "cl_checkpoint_poll_interval"
                     ],
+                    "chain_type": network_params.get(
+                        "cl_chain_type", "mainnet"
+                    ),
                     # URLs.
                     "amqp_url": amqp_url,
                     "el_rpc_url": el_rpc_url,

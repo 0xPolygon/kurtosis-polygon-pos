@@ -26,6 +26,7 @@ POLYGON_POS_PARAMS = {
         "cl_chain_id",
         "cl_span_poll_interval",
         "cl_checkpoint_poll_interval",
+        "cl_chain_type",
         "el_chain_id",
         "el_block_interval_seconds",
         "el_sprint_duration",

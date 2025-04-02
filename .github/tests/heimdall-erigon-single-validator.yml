@@ -1,0 +1,10 @@
+polygon_pos_package:
+  participants:
+    # validators
+    - cl_type: heimdall
+      cl_log_level: debug
+      el_type: erigon
+      el_log_level: trace
+      is_validator: true
+  network_params:
+    cl_chain_type: local

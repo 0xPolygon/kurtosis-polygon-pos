@@ -10,6 +10,9 @@ ERIGON_CONFIG_FOLDER_PATH = "/etc/erigon"
 # The folder where erigon app stores data inside the service.
 ERIGON_APP_DATA_FOLDER_PATH = "/var/lib/erigon"
 
+ERIGON_DISCOVERY_PORT_ID = "discovery"
+ERIGON_DISCOVERY_PORT_NUMBER = 30303
+
 
 def launch(
     plan,
@@ -101,6 +104,11 @@ def launch(
                 ),
                 el_shared.METRICS_PORT_ID: PortSpec(
                     number=el_shared.METRICS_PORT_NUMBER,
+                    application_protocol="http",
+                    wait=None,
+                ),
+                ERIGON_DISCOVERY_PORT_ID: PortSpec(
+                    number=ERIGON_DISCOVERY_PORT_NUMBER,
                     application_protocol="http",
                     wait=None,
                 ),

@@ -4,7 +4,7 @@ networkid = "{{.el_chain_id}}"
 datadir = "{{.data_folder_path}}"
 staticpeers = "{{.static_nodes}}"
 verbosity = "{{.log_level}}"
-snapshots = false
+no-downloader = true
 nat = "none"
 
 # Bor parameters.
@@ -23,6 +23,11 @@ nat = "none"
 # WS RPC
 "ws" = true
 "ws.port" = {{.ws_port_number}}
+
+# MINER
+mine = true
+"miner.etherbase" = "{{.address}}"
+"miner.sigfile" = "{{.config_folder_path}}/nodekey"
 
 # Metrics
 "metrics.addr" = "0.0.0.0"
