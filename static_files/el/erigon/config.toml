@@ -4,13 +4,21 @@ networkid = "{{.el_chain_id}}"
 datadir = "{{.data_folder_path}}"
 staticpeers = "{{.static_nodes}}"
 verbosity = "{{.log_level}}"
-snapshots = false
+no-downloader = true
 nat = "none"
 
 # Bor parameters.
 "bor.heimdall" = "{{.cl_node_url}}"
 "bor.milestone" = true
 "bor.waypoints" = false
+
+# Validator parameters.
+mine = {{.is_validator}}
+port = {{.discovery_port_number}}
+{{if .is_validator}}
+"miner.etherbase" = "{{.address}}"
+"miner.sigfile" = "{{.config_folder_path}}/nodekey"
+{{end}}
 
 # HTTP RPC
 "http" = true

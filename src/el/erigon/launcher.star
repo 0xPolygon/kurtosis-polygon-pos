@@ -33,6 +33,7 @@ def launch(
                     "node_name": el_node_name,
                     "config_folder_path": ERIGON_CONFIG_FOLDER_PATH,
                     "data_folder_path": ERIGON_APP_DATA_FOLDER_PATH,
+                    "is_validator": is_validator,
                     "address": el_account.eth_tendermint.address,
                     "cl_node_url": cl_node_url,
                     "log_level": participant.get("el_log_level"),
@@ -42,6 +43,7 @@ def launch(
                     # ports
                     "rpc_port_number": el_shared.RPC_PORT_NUMBER,
                     "ws_port_number": el_shared.WS_PORT_NUMBER,
+                    "discovery_port_number": el_shared.DISCOVERY_PORT_NUMBER,
                     "metrics_port_number": el_shared.METRICS_PORT_NUMBER,
                 },
             ),
@@ -97,6 +99,11 @@ def launch(
                 el_shared.WS_PORT_ID: PortSpec(
                     number=el_shared.WS_PORT_NUMBER,
                     application_protocol="ws",
+                    wait=None,
+                ),
+                el_shared.DISCOVERY_PORT_ID: PortSpec(
+                    number=el_shared.DISCOVERY_PORT_NUMBER,
+                    application_protocol="http",
                     wait=None,
                 ),
                 el_shared.METRICS_PORT_ID: PortSpec(

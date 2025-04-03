@@ -41,4 +41,4 @@ eth_rpc_timeout = "5m0s"
 bor_rpc_timeout = "5m0s"
 no_ack_wait_time = "30m0s"
 
-chain = "mainnet"
+chain = "{{.environment}}"

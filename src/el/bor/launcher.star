@@ -1,11 +1,6 @@
 el_shared = import_module("../shared.star")
 
 
-# Port identifiers and numbers.
-BOR_DISCOVERY_PORT_ID = "discovery"
-BOR_DISCOVERY_PORT_NUMBER = 30303
-
-
 # The folder where the bor template config is stored in the repository.
 BOR_TEMPLATE_CONFIG_FILE_PATH = "../../../static_files/el/bor/config.toml"
 
@@ -48,7 +43,7 @@ def launch(
                     # ports
                     "rpc_port_number": el_shared.RPC_PORT_NUMBER,
                     "ws_port_number": el_shared.WS_PORT_NUMBER,
-                    "discovery_port_number": BOR_DISCOVERY_PORT_NUMBER,
+                    "discovery_port_number": el_shared.DISCOVERY_PORT_NUMBER,
                     "metrics_port_number": el_shared.METRICS_PORT_NUMBER,
                 },
             ),
@@ -101,8 +96,8 @@ def launch(
                     application_protocol="ws",
                     wait=None,
                 ),
-                BOR_DISCOVERY_PORT_ID: PortSpec(
-                    number=BOR_DISCOVERY_PORT_NUMBER,
+                el_shared.DISCOVERY_PORT_ID: PortSpec(
+                    number=el_shared.DISCOVERY_PORT_NUMBER,
                     application_protocol="http",
                     wait=None,
                 ),

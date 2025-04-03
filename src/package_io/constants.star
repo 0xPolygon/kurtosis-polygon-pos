@@ -12,6 +12,12 @@ CL_TYPE = struct(
     heimdall_v2="heimdall-v2",
 )
 
+CL_ENVIRONMENT = struct(
+    mainnet="mainnet",
+    mumbai="mumbai",
+    local="local",
+)
+
 LOG_LEVEL = struct(
     error="error",
     warn="warn",
