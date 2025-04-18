@@ -1,0 +1,47 @@
+# See https://github.com/0xPolygon/panoptichain/blob/main/config.yml for how to
+# configure this file.
+http:
+  port: {{.panoptichain_port}}
+  address: "0.0.0.0"
+  path: {{.panoptichain_metrics_path}}
+
+providers:
+  system:
+    interval: 15
+
+  rpc:
+    {{range $label, $url := .l1_rpcs}}
+    - name: "L1"
+      url: "{{$url}}"
+      label: "{{$label}}"
+      contracts:
+        state_sync_sender_address: "{{$.state_sync_sender_address}}"
+        checkpoint_address: "{{$.checkpoint_address}}"
+    {{end}}
+
+    {{range $label, $url := .l2_rpcs}}
+    - name: "L2"
+      url: "{{$url}}"
+      label: "{{$label}}"
+      contracts:
+        state_sync_receiver_address: "{{$.state_sync_receiver_address}}"
+    {{end}}
+
+  heimdall:
+    {{range $label, $urls := .heimdall_urls}}
+    - name: "L2"
+      tendermint_url: "{{$urls.tendermint}}"
+      heimdall_url: "{{$urls.heimdall}}"
+      label: "{{$label}}"
+      interval: 5
+    {{end}}
+
+networks:
+  - name: "L1"
+    chain_id: "{{.l1_chain_id}}"
+    polygon_pos: true
+
+  - name: "L2"
+    chain_id: "{{.l2_chain_id}}"
+    polygon_pos: true
+

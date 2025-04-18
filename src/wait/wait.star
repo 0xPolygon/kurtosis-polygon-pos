@@ -3,8 +3,8 @@ constants = import_module("../package_io/constants.star")
 
 def wait_for_l1_startup(plan, cl_rpc_url):
     plan.run_sh(
-        name="wait-for-l1-startup",
-        description="Wait for L1 to start up - it can take up to 2 minutes",
+        name="l1-startup-monitor",
+        description="Wait for L1 to start up - it can take up to 5 minutes",
         env_vars={
             "CL_RPC_URL": cl_rpc_url,
         },
@@ -50,8 +50,8 @@ def wait_for_l2_startup(plan, cl_api_url, cl_type):
         )
 
     plan.run_sh(
-        name="wait-for-l2-startup",
-        description="Wait for L2 to start up - it can take up to 2 minutes",
+        name="l2-startup-monitor",
+        description="Wait for L2 to start up - it can take up to 5 minutes",
         env_vars={
             "CL_RPC_URL": cl_api_url,
             "ENDPOINT": endpoint,

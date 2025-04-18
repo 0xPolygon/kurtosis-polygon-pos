@@ -73,25 +73,7 @@ kurtosis run --args-file params.yml --enclave pos-devnet .
 
 ### Interact
 
-To make sure the devnet is running correctly, you can use two of our handy scripts. The first script scans the Kurtosis enclave to identify the rpc urls of the different nodes (run this script only once per deployment), while the second script queries the different rpc urls and returns the status of the devnet.
-
-```bash
-export ENCLAVE="pos-devnet"
-bash scripts/discover.sh
-bash scripts/monitor.sh
-```
-
-If you want to run the monitor only once, you can use the following command:
-
-```bash
-export TIMEOUT_SECONDS=1
-export CHECK_RATE_SECONDS=0
-bash scripts/monitor.sh
-```
-
-A healthy devnet is characterized by CL and EL nodes that successfully establish peer connections and show consistent block production and finalization across both layers.
-
-Now that we made sure the devnet is healthy, let's do a simple L2 rpc test call.
+Let's do a simple L2 rpc test call.
 
 First, you will need to figure out which port Kurtosis is using for the rpc. You can get a general feel for the entire network layout by running the following command.
 
@@ -145,25 +127,12 @@ kurtosis files inspect pos-devnet matic-contract-addresses contractAddresses.jso
 
 ### Test
 
-Trigger a state sync.
+Trigger a state sync using the [agglayer/e2e](https://github.com/agglayer/e2e) repository.
 
 ```bash
-export L1_RPC_URL="http://$(kurtosis port print pos-devnet el-1-geth-lighthouse rpc)"
-matic_contract_addresses=$(kurtosis files inspect pos-devnet matic-contract-addresses contractAddresses.json | tail -n +2 | jq)
-export L1_DEPOSIT_MANAGER_PROXY_ADDRESS=$(echo $matic_contract_addresses | jq --raw-output '.root.DepositManagerProxy')
-export ERC20_TOKEN_ADDRESS=$(echo $matic_contract_addresses | jq --raw-output '.root.tokens.MaticToken')
-export FUNDER_PRIVATE_KEY="0xd40311b5a5ca5eaeb48dfba5403bde4993ece8eccf4190e98e19fcd4754260ea" # unless it has been changed.
-bash ./scripts/send_state_sync.sh
-```
-
-Monitor state syncs.
-
-```bash
-export L2_CL_API_URL=$(kurtosis port print pos-devnet l2-cl-1-heimdall-bor-validator http)
-export L2_CL_NODE_TYPE=heimdall
-export L2_RPC_URL=$(kurtosis port print pos-devnet l2-el-1-bor-heimdall-validator rpc)
-export L2_STATE_RECEIVER_ADDRESS=$(kurtosis files inspect pos-devnet l2-el-genesis genesis.json | tail -n +2 | jq --raw-output '.config.bor.stateReceiverContract')
-bash ./scripts/check_state_sync.sh
+git clone https://github.com/agglayer/e2e.git
+pushd e2e
+bats --filter-tags pos,bridge,matic,pol --recursive tests/
 ```
 
 ### Make Changes
@@ -244,15 +213,15 @@ polygon_pos_package:
   participants:
     - ## Execution Layer (EL) specific flags.
       # The type of EL client that should be started.
-      # Valid values are: "bor", "bor-modified-for-heimdall-v2", "erigon"
+      # Valid values are: "bor", "erigon"
       el_type: bor
 
       # The docker image that should be used for the EL client.
       # Leave blank to use the default image for the client type.
       # Defaults by client:
       # - bor: "0xpolygon/bor:2.0.1"
-      # - bor-modified-for-heimdall-v2: "leovct/bor-modified-for-heimdall-v2:32e26a4"
-      # - erigon: "erigontech/erigon:v2.61.3"
+      # - bor modified for heimdall-v2: "leovct/bor:1a6957c"
+      # - erigon: "erigontech/erigon:main-0360e94"
       el_image: 0xpolygon/bor:2.0.1
 
       # The log level string that this participant's EL client should log at.
@@ -268,9 +237,9 @@ polygon_pos_package:
       # The docker image that should be used for the CL client.
       # Leave blank to use the default image for the client type.
       # Defaults by client:
-      # - heimdall: "0xpolygon/heimdall:1.2.0"
+      # - heimdall: "0xpolygon/heimdall:1.2.3"
       # - heimdall-v2: "0xpolygon/heimdall-v2:0.1.9"
-      cl_image: 0xpolygon/heimdall:1.2.0
+      cl_image: 0xpolygon/heimdall:1.2.3
 
       # The docker image that should be used for the CL's client database.
       # Leave blank to use the default image.
@@ -297,29 +266,29 @@ polygon_pos_package:
   # Images for contract deployment and configuration.
   setup_images:
     # Image used to deploy MATIC contracts to L1.
-    # Default: "leovct/pos-contract-deployer-node-16:c4d8e12"
-    contract_deployer: leovct/pos-contract-deployer-node-16:c4d8e12
+    # Default: "leovct/pos-contract-deployer-node-20:ed58f8a"
+    contract_deployer: leovct/pos-contract-deployer-node-20:ed58f8a
     # Image used to create the L2 EL genesis file.
     # Default: "leovct/pos-el-genesis-builder:96a19dd"
     el_genesis_builder: leovct/pos-el-genesis-builder:96a19dd
     # Image used to generate L2 CL/EL validators configurations.
-    # Default: "leovct/pos-validator-config-generator:1.2.0-0.1.9"
-    validator_config_generator: leovct/pos-validator-config-generator:1.2.0-0.1.9
+    # Default: "leovct/pos-validator-config-generator:1.2.3-0.1.9"
+    validator_config_generator: leovct/pos-validator-config-generator:1.2.3-0.1.9
 
   # L2 network parameters.
   network_params:
     ## Validators parameters.
     # This mnemonic will be used to create keystores for CL/EL validators.
     # Note that validators accounts are prefunded to make the validator setup easier and faster.
-    # Take a look at src/prelaunch_data_generator/genesis_constants/PRE_FUNDED_ACCOUNTS.md
+    # Take a look at src/prefunded_accounts/README.md
     # Default: "sibling lend brave explain wait orbit mom alcohol disorder message grace sun"
     preregistered_validator_keys_mnemonic: sibling lend brave explain wait orbit mom alcohol disorder message grace sun
     # The amount of ether to stake for each validator.
     # Default: 10000
-    validator_stake_amount: 10000
+    validator_stake_amount_eth: 10000
     # The top up fee amount, in ether, for each validator.
     # Default: 2000
-    validator_top_up_fee_amount: 2000
+    validator_top_up_fee_amount_eth: 2000
 
     ## Consensus Layer parameters.
     # The CL network id.
@@ -332,6 +301,9 @@ polygon_pos_package:
     # The checkpoint pool interval on the CL chain.
     # Default: "1m0s"
     cl_checkpoint_poll_interval: 1m0s
+    # The CL environment.
+    # Default: "mainnet"
+    cl_environment: mainnet
 
     ## Execution Layer parameters.
     # The EL network id.
@@ -356,8 +328,10 @@ polygon_pos_package:
   additional_services:
     # A blockchain explorer (will be supported soon).
     # - blockscout
-    # A monitoring stack composed of Prometheus and Grafana (will be supported soon).
+    # A monitoring stack composed of Prometheus and Grafana.
     - prometheus_grafana
+    # A test runner based on the agglayer/e2e repository (https://github.com/agglayer/e2e).
+    - test_runner
     # A transaction spammer to send fake transactions to the network (will be supported soon).
     # - tx_spammer
 ```

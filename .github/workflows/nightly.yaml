@@ -1,0 +1,133 @@
+name: nightly
+
+on:
+  schedule:
+    - cron: 0 6 * * * # Run this workflow every day at 6 AM Paris time (UTC+2).
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: nightly-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  KURTOSIS_VERSION: "1.4.4"
+  FOUNDRY_VERSION: stable
+  ENCLAVE_NAME: pos
+
+jobs:
+  list-ymls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: set-matrix
+        run: |
+          file_paths=$(ls -R ./.github/tests/nightly/{*,*/*}.yml)
+          echo "file_paths=${file_paths}"
+
+          matrix=$(echo "${file_paths}" | while read -r file_path; do
+            file_name=$(basename -s ".yml" "${file_path}")
+            folder_name=$(basename $(dirname "${file_path}"))
+            if [[ "${folder_name}" == "nightly" ]]; then
+              job_name="${file_name}"
+            else
+              job_name="${folder_name}-${file_name}"
+            fi
+            echo "{\"name\": \"$job_name\", \"path\": \"$file_path\"}"
+          done | jq -s -c '.')
+          echo "matrix=${matrix}"
+
+          echo "matrix=${matrix}" >> $GITHUB_OUTPUT
+
+  run-with-args:
+    needs: list-ymls
+    name: run-with-${{ matrix.test.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        test: ${{ fromJson(needs.list-ymls.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        # This step will only execute if the necessary secrets are available, preventing failures
+        # on pull requests from forked repositories.
+        if: ${{ env.DOCKERHUB_USERNAME && env.DOCKERHUB_TOKEN }}
+        env:
+          DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Install kurtosis
+        run: |
+          echo "deb [trusted=yes] https://apt.fury.io/kurtosis-tech/ /" | sudo tee /etc/apt/sources.list.d/kurtosis.list
+          sudo apt update
+          sudo apt install kurtosis-cli=${{ env.KURTOSIS_VERSION }}
+          kurtosis analytics disable
+          kurtosis version
+
+      - name: Install foundry
+        uses: foundry-rs/foundry-toolchain@de808b1eea699e761c404bda44ba8f21aba30b2c # v1.3.1
+        with:
+          version: ${{ env.FOUNDRY_VERSION }}
+
+      - name: Install yq
+        run: |
+          pip3 install yq
+          yq --version
+
+      - name: Run Starlark
+        run: kurtosis run --enclave=${{ env.ENCLAVE_NAME }} --args-file=${{ matrix.test.path }} --show-enclave-inspect=false --verbosity=DETAILED .
+
+      - name: Inspect enclave
+        run: kurtosis enclave inspect ${{ env.ENCLAVE_NAME }}
+
+      - name: Check if test runner is deployed
+        id: check-test-runner
+        run: |
+          # The test runner is deployed by default.
+          test_runner_deployed=true
+
+          # Verify if additional services are defined and ensure the test runner is deployed.
+          additional_services=$(yq '.polygon_pos_package.additional_services' ${{ matrix.test.path }})
+          if [[ "${additional_services}" != "null" ]]; then
+            is_test_runner_deployed=$(yq '.polygon_pos_package.additional_services | contains(["test_runner"])' ${{ matrix.test.path }})
+            if [[ "${is_test_runner_deployed}" != "true" ]]; then
+              test_runner_deployed=false
+            fi
+          fi
+
+          echo "test_runner_deployed=${test_runner_deployed}" >> $GITHUB_OUTPUT
+
+      - name: Test state syncs
+        if: steps.check-test-runner.outputs.test_runner_deployed == 'true'
+        run: kurtosis service exec ${{ env.ENCLAVE_NAME }} test-runner "bats --filter-tags pos,bridge,matic,pol --recursive tests/"
+
+      - name: Dump enclave
+        if: always()
+        run: kurtosis enclave dump ${{ env.ENCLAVE_NAME }} ./dump
+
+      - name: Generate archive name
+        if: always()
+        run: |
+          archive_name="dump_run_with_args_${{ matrix.test.name }}_${{ github.run_id }}"
+          echo "ARCHIVE_NAME=${archive_name}" >> "$GITHUB_ENV"
+          echo "Generated archive name: ${archive_name}"
+
+      - name: Upload enclave dump
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARCHIVE_NAME }}
+          path: ./dump

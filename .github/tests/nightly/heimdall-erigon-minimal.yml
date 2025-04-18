@@ -1,0 +1,8 @@
+polygon_pos_package:
+  participants:
+    - cl_type: heimdall
+      el_type: erigon
+      is_validator: true
+
+  network_params:
+    cl_environment: local

@@ -4,6 +4,8 @@ set -euxo pipefail
 # Deploy MATIC contracts to L2.
 # For reference: https://github.com/maticnetwork/contracts/tree/v0.3.11/deploy-migrations
 
+CONTRACT_ADDRESSES_FILE="/opt/contracts/contractAddresses.json"
+
 # Setting EL chain id if needed.
 if [[ -z "${EL_CHAIN_ID}" ]]; then
   echo "Error: EL_CHAIN_ID environment variable is not set"
@@ -58,6 +60,9 @@ truffle migrate --network l2 --f 5 --to 5 --compile-none
 echo "Mapping L2 contracts to the registry on L1..."
 truffle migrate --network l1 --f 6 --to 6 --compile-none
 
-echo "MATIC contracts deployed to L1 and L2:"
-cat /opt/contracts/contractAddresses.json
-echo
+if [[ -s "${CONTRACT_ADDRESSES_FILE}" ]]; then
+  echo "MATIC contracts deployed to L1 and L2:"
+  cat "${CONTRACT_ADDRESSES_FILE}"
+else
+  echo "Error: ${CONTRACT_ADDRESSES_FILE} does not exist or is empty."
+fi

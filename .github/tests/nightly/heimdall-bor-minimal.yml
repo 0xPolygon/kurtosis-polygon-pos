@@ -1,0 +1,5 @@
+polygon_pos_package:
+  participants:
+    - cl_type: heimdall
+      el_type: bor
+      is_validator: true

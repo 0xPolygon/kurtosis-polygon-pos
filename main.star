@@ -1,44 +1,36 @@
-account_util = import_module(
-    "./src/prelaunch_data_generator/genesis_constants/account.star"
-)
+account_util = import_module("./src/account/account.star")
 blockscout = import_module("./src/additional_services/blockscout.star")
-cl_genesis_generator = import_module(
-    "./src/prelaunch_data_generator/cl_genesis/cl_genesis_generator.star"
-)
-contract_deployer = import_module("./src/contracts/contract_deployer.star")
+cl_genesis = import_module("./src/cl/genesis.star")
+constants = import_module("./src/package_io/constants.star")
+contract_deployer = import_module("./src/contracts/deployer.star")
 el_cl_launcher = import_module("./src/el_cl_launcher.star")
-el_genesis_generator = import_module(
-    "./src/prelaunch_data_generator/el_genesis/el_genesis_generator.star"
-)
-el_shared = import_module("./src/el/el_shared.star")
+el_genesis = import_module("./src/el/genesis.star")
+el_shared = import_module("./src/el/shared.star")
 hex = import_module("./src/hex/hex.star")
 input_parser = import_module("./src/package_io/input_parser.star")
 math = import_module("./src/math/math.star")
-pre_funded_accounts = import_module(
-    "./src/prelaunch_data_generator/genesis_constants/pre_funded_accounts.star"
-)
+prefunded_accounts_module = import_module("./src/prefunded_accounts/accounts.star")
 prometheus_grafana = import_module("./src/additional_services/prometheus_grafana.star")
+test_runner = import_module("./src/additional_services/test_runner.star")
 tx_spammer = import_module("./src/additional_services/tx_spammer.star")
 wait = import_module("./src/wait/wait.star")
-constants = import_module("./src/package_io/constants.star")
+
+ETHEREUM_PACKAGE = "github.com/ethpandaops/ethereum-package/main.star@4.4.0"
 
 
 def run(plan, args):
-    # Parse L1, L2 and dev input args.
-    args = input_parser.input_parser(plan, args)
-    ethereum_args = args.get("ethereum_package")
-    polygon_pos_args = args.get("polygon_pos_package")
-    dev_args = args.get("dev")
+    # Parse input arguments.
+    (
+        ethereum_args,
+        polygon_pos_args,
+        dev_args,
+        devnet_cl_type,
+    ) = input_parser.input_parser(plan, args)
 
     participants = polygon_pos_args.get("participants")
     validator_accounts = get_validator_accounts(participants)
     l2_network_params = polygon_pos_args.get("network_params")
-    admin_private_key = hex.normalize(
-        l2_network_params.get("admin_private_key")
-    )  # Used to deploy Polygon PoS contracts on both L1 and L2.
-
-    # Determine the devnet CL type to be able to select the appropriate validator address format later.
-    devnet_cl_type = participants[0].get("cl_type")
+    admin_private_key = hex.normalize(l2_network_params.get("admin_private_key"))
 
     # Deploy a local L1 if needed.
     # Otherwise, use the provided rpc url.
@@ -63,21 +55,29 @@ def run(plan, args):
         if len(l1.all_participants) < 1:
             fail("The L1 package did not start any participants.")
         l1_context = struct(
+            chain_id=l1.network_id,
             private_key=admin_private_key,
             rpc_url=l1.all_participants[0].el_context.rpc_http_url,
+            all_participants=l1.all_participants,
         )
-        l1_rpcs = {}
-        for participant in l1.all_participants:
-            l1_rpcs[
-                participant.el_context.service_name
-            ] = participant.el_context.rpc_http_url
     else:
         plan.print("Using an external l1")
-        l1_context = struct(
-            private_key=admin_private_key,
-            rpc_url=dev_args.get("l1_rpc_url"),
+        l1_rpc_url = dev_args.get("l1_rpc_url")
+        l1_chain_id = plan.run_sh(
+            name="l1-chain-id-reader",
+            description="Reading external L1 chain id from the RPC",
+            image="ghcr.io/foundry-rs/foundry:stable",
+            run="cast to-dec $(cast rpc eth_chainId --rpc-url ${L1_RPC_URL} | sed 's/\"//g') | tr -d '\n'",
+            env_vars={
+                "L1_RPC_URL": l1_rpc_url,
+            },
         )
-        l1_rpcs = {"external-l1": dev_args.get("l1_rpc_url")}
+        l1_context = struct(
+            chain_id=l1_chain_id,
+            private_key=admin_private_key,
+            rpc_url=l1_rpc_url,
+            all_participants=None,
+        )
 
     # Deploy MATIC contracts to L1 and generate the EL and CL genesis files if needed.
     # Otherwise, use the provided EL and CL genesis files.
@@ -85,53 +85,30 @@ def run(plan, args):
         plan.print("Number of validators: {}".format(len(validator_accounts)))
         plan.print(validator_accounts)
 
-        result = contract_deployer.deploy_l1_contracts(
+        (
+            l1_contract_addresses_artifact,
+            validator_config_artifact,
+        ) = contract_deployer.deploy_l1_contracts(
             plan,
             polygon_pos_args,
             l1_context.rpc_url,
             admin_private_key,
             validator_accounts,
         )
-        artifact_count = len(result.files_artifacts)
-        if artifact_count != 2:
-            fail(
-                "The contract deployer should have generated 2 artifacts, got {}.".format(
-                    artifact_count
-                )
-            )
-        contract_addresses_artifact = result.files_artifacts[0]
-        validator_config_artifact = result.files_artifacts[1]
 
-        result = cl_genesis_generator.generate_cl_genesis_data(
+        l2_cl_genesis_artifact = cl_genesis.generate(
             plan,
             polygon_pos_args,
             devnet_cl_type,
             validator_accounts,
-            contract_addresses_artifact,
+            l1_contract_addresses_artifact,
         )
-        artifact_count = len(result.files_artifacts)
-        if artifact_count != 1:
-            fail(
-                "The CL genesis generator should have generated 1 artifact, got {}.".format(
-                    artifact_count
-                )
-            )
-        l2_cl_genesis_artifact = result.files_artifacts[0]
-
-        result = el_genesis_generator.generate_el_genesis_data(
+        l2_el_genesis_artifact = el_genesis.generate(
             plan,
             polygon_pos_args,
             validator_config_artifact,
             l2_network_params.get("admin_address"),
         )
-        artifact_count = len(result.files_artifacts)
-        if artifact_count != 1:
-            fail(
-                "The EL genesis generator should have generated 1 artifact, got {}.".format(
-                    artifact_count
-                )
-            )
-        l2_el_genesis_artifact = result.files_artifacts[0]
     else:
         plan.print("Using L2 EL/CL genesis provided")
         l2_el_genesis_artifact = plan.render_templates(
@@ -154,7 +131,7 @@ def run(plan, args):
         )
 
         plan.print("Using matic contract addresses provided")
-        contract_addresses_artifact = plan.render_templates(
+        l1_contract_addresses_artifact = plan.render_templates(
             name="matic-contract-addresses",
             config={
                 "contractAddresses.json": struct(
@@ -182,16 +159,18 @@ def run(plan, args):
         l1_context.rpc_url,
         devnet_cl_type,
     )
-    l2_rpc_url = l2_context[0].el_context.ports[el_shared.EL_RPC_PORT_ID].url
+    l2_rpc_url = l2_context.all_participants[0].el_context.rpc_http_url
 
     # Deploy MATIC contracts to L2.
-    result = contract_deployer.deploy_l2_contracts_and_synchronise_l1_state(
-        plan,
-        polygon_pos_args,
-        l1_context.rpc_url,
-        l2_rpc_url,
-        admin_private_key,
-        contract_addresses_artifact,
+    contract_addresses_artifact = (
+        contract_deployer.deploy_l2_contracts_and_synchronise_l1_state(
+            plan,
+            polygon_pos_args,
+            l1_context.rpc_url,
+            l2_rpc_url,
+            admin_private_key,
+            l1_contract_addresses_artifact,
+        )
     )
 
     # Deploy additional services.
@@ -202,10 +181,19 @@ def run(plan, args):
         elif svc == constants.ADDITIONAL_SERVICES.prometheus_grafana:
             prometheus_grafana.launch(
                 plan,
-                l1_rpcs,
-                constants.DEFAULT_L1_CHAIN_ID,
-                participants,
-                constants.DEFAULT_EL_CHAIN_ID,
+                l1_context,
+                l2_context,
+                l2_el_genesis_artifact,
+                contract_addresses_artifact,
+            )
+        elif svc == constants.ADDITIONAL_SERVICES.test_runner:
+            test_runner.launch(
+                plan,
+                l1_context,
+                l2_context,
+                l2_network_params,
+                l2_el_genesis_artifact,
+                contract_addresses_artifact,
             )
         elif svc == constants.ADDITIONAL_SERVICES.tx_spammer:
             tx_spammer.launch(plan)
@@ -214,22 +202,15 @@ def run(plan, args):
 
 
 def get_validator_accounts(participants):
-    prefunded_accounts = pre_funded_accounts.PRE_FUNDED_ACCOUNTS
+    prefunded_accounts = prefunded_accounts_module.PREFUNDED_ACCOUNTS
 
     validator_accounts = []
     participant_index = 0
     for participant in participants:
         for _ in range(participant.get("count")):
             if participant.get("is_validator"):
-                if participant_index >= len(prefunded_accounts):
-                    fail(
-                        "Having more than {} validators is not supported for now.".format(
-                            len(prefunded_accounts)
-                        )
-                    )
                 account = prefunded_accounts[participant_index]
                 validator_accounts.append(account)
-            # Increment the participant index.
             participant_index += 1
 
     if len(validator_accounts) == 0:
@@ -258,7 +239,7 @@ def deploy_local_l1(plan, ethereum_args, preregistered_validator_keys_mnemonic):
     }
 
     # Deploy the ethereum package.
-    l1 = import_module(constants.ETHEREUM_PACKAGE).run(plan, ethereum_args)
+    l1 = import_module(ETHEREUM_PACKAGE).run(plan, ethereum_args)
     plan.print(l1)
     if len(l1.all_participants) < 1:
         fail("The L1 package did not start any participants.")
@@ -276,7 +257,7 @@ def _merge_l1_prefunded_accounts(admin_address, l1_network_params):
     )
 
     validators_prefunded_accounts = {}
-    for a in pre_funded_accounts.PRE_FUNDED_ACCOUNTS:
+    for a in prefunded_accounts_module.PREFUNDED_ACCOUNTS:
         validators_prefunded_accounts |= account_util.to_ethereum_pkg_prefunded_account(
             a.eth_tendermint.address, constants.VALIDATORS_BALANCE_ETH
         )

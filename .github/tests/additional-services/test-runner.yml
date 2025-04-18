@@ -1,0 +1,3 @@
+polygon_pos_package:
+  additional_services:
+    - test_runner

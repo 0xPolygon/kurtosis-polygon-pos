@@ -4,6 +4,8 @@ set -euxo pipefail
 # Deploy Polygon PoS contracts to L1, initialise state and stake for each validator.
 # For reference: https://github.com/0xPolygon/pos-contracts/tree/arya/matic-cli/pos-1869
 
+CONTRACT_ADDRESSES_FILE="/opt/contracts/contractAddresses.json"
+
 # Setting EL chain id if needed.
 if [[ -z "${EL_CHAIN_ID}" ]]; then
   echo "Error: EL_CHAIN_ID environment variable is not set"
@@ -58,10 +60,12 @@ echo "Mapping L2 contracts to the registry on L1..."
 forge script --rpc-url "${L1_RPC_URL}" --broadcast \
   scripts/deployment-scripts/syncChildStateToRoot.s.sol:SyncChildStateToRootScript
 
-echo "Polygon PoS contracts deployed to L1 and L2:"
-cat contractAddresses.json
-echo
-
-# Move files to /opt/contracts.
 mkdir -p /opt/contracts
 mv contractAddresses.json /opt/contracts
+
+if [[ -s "${CONTRACT_ADDRESSES_FILE}" ]]; then
+  echo "Polygon PoS contracts deployed to L1 and L2:"
+  cat "${CONTRACT_ADDRESSES_FILE}"
+else
+  echo "Error: ${CONTRACT_ADDRESSES_FILE} does not exist or is empty."
+fi

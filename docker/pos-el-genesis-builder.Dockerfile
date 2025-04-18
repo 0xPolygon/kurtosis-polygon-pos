@@ -4,7 +4,7 @@ LABEL author="devtools@polygon.technology"
 
 WORKDIR /opt/solidity
 RUN apt-get update \
-  && apt-get install --yes cmake libboost-all-dev z3 cvc4 git gcc g++ \
+  && apt-get install --yes cmake cvc4 gcc g++ git libboost-all-dev z3 \
   && git clone --branch v0.5.17 --depth 1 https://github.com/ethereum/solidity.git . \
   && mkdir build \
   && cd build \
@@ -13,10 +13,9 @@ RUN apt-get update \
 
 
 FROM node:16-bookworm
-LABEL description="MATIC (Polygon PoS) genesis builder image"
+LABEL description="MATIC (Polygon PoS) EL genesis builder image"
 LABEL author="devtools@polygon.technology"
 
-# 08/01/2025
 ARG GENESIS_CONTRACTS_BRANCH="master"
 ARG GENESIS_CONTRACTS_TAG_OR_COMMIT_SHA="96a19dd"
 
@@ -29,7 +28,7 @@ COPY --from=soldity-builder /opt/solidity/build/solc /usr/local/bin/
 # Prepare environment to build MATIC genesis file.
 WORKDIR /opt/genesis-contracts
 RUN apt-get update \
-  && apt-get install --yes jq \
+  && apt-get install --no-install-recommends --yes jq \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
   && npm install --global truffle@${TRUFFLE_VERSION} \

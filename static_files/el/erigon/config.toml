@@ -1,0 +1,54 @@
+identity = "{{.node_name}}"
+networkid = "{{.el_chain_id}}"
+datadir = "{{.data_folder_path}}"
+verbosity = "{{.log_level}}"
+
+no-downloader = true
+nat = "none"
+
+# [p2p]
+maxpeers = 200
+port = {{.discovery_port_number}}
+nodiscover = true
+# [p2p.discovery]
+staticpeers = "{{.static_nodes}}"
+
+# [heimdall]
+"bor.heimdall" = "{{.cl_node_url}}"
+
+# [bor]
+"bor.milestone" = true
+"bor.waypoints" = false
+
+# [miner]
+{{if .is_validator}}
+mine = {{.is_validator}}
+"miner.gaslimit" = 30000000
+# "miner.gasprice" = "25000000000" # TODO: Make this flag available in erigon.
+"miner.etherbase" = "{{.address}}"
+"miner.extradata" = "{{.node_name}}"
+"miner.sigfile" = "{{.data_folder_path}}/nodekey"
+{{end}}
+
+# [accounts]
+allow-insecure-unlock = true
+
+# [jsonrpc]
+# ipcpath = "{{.data_folder_path}}/erigon.ipc" # TODO: Make this flag available in erigon.
+# [jsonrpc.http]
+"http" = true
+"http.addr" = "0.0.0.0"
+"http.port" = {{.rpc_port_number}}
+"http.api" = ["admin", "eth", "net", "web3", "txpool", "bor"]
+"http.vhosts" = ["*"]
+"http.corsdomain" = ["*"]
+# [jsonrpc.ws]
+"ws" = true
+# "ws.addr" = "0.0.0.0" # TODO: Make this flag available in erigon.
+"ws.port" = {{.ws_port_number}}
+# "ws.api" = ["admin", "eth", "net", "web3", "txpool", "bor"]
+# "ws.origins" = ["*"] # TODO: Make this flag available in erigon.
+   
+# [telemetry]
+"metrics.addr" = "0.0.0.0"
+"metrics.port" = {{.metrics_port_number}}

@@ -1,4 +1,7 @@
 constants = import_module("./constants.star")
+math = import_module("../math/math.star")
+prefunded_accounts_module = import_module("../prefunded_accounts/accounts.star")
+
 
 POLYGON_POS_PARAMS = {
     "participants": [
@@ -7,8 +10,8 @@ POLYGON_POS_PARAMS = {
         "el_log_level",
         "cl_type",
         "cl_image",
-        "cl_db_image",
         "cl_log_level",
+        "cl_db_image",
         "is_validator",
         "count",
     ],
@@ -21,9 +24,10 @@ POLYGON_POS_PARAMS = {
         "admin_address",
         "admin_private_key",
         "preregistered_validator_keys_mnemonic",
-        "validator_stake_amount",
-        "validator_top_up_fee_amount",
+        "validator_stake_amount_eth",
+        "validator_top_up_fee_amount_eth",
         "cl_chain_id",
+        "cl_environment",
         "cl_span_poll_interval",
         "cl_checkpoint_poll_interval",
         "el_chain_id",
@@ -33,20 +37,34 @@ POLYGON_POS_PARAMS = {
         "el_gas_limit",
     ],
     "additional_services": [
-        "blockscout",
-        "prometheus_grafana",
-        "tx_spammer",
+        getattr(constants.ADDITIONAL_SERVICES, field)
+        for field in dir(constants.ADDITIONAL_SERVICES)
     ],
 }
 
+VALID_CL_CLIENTS = [constants.CL_TYPE.heimdall, constants.CL_TYPE.heimdall_v2]
+VALID_EL_CLIENTS = [constants.EL_TYPE.bor, constants.EL_TYPE.erigon]
 VALID_CLIENT_COMBINATIONS = {
     constants.CL_TYPE.heimdall: [
         constants.EL_TYPE.bor,
-        constants.EL_TYPE.bor_modified_for_heimdall_v2,
         constants.EL_TYPE.erigon,
     ],
-    constants.CL_TYPE.heimdall_v2: [constants.EL_TYPE.bor_modified_for_heimdall_v2],
+    constants.CL_TYPE.heimdall_v2: [constants.EL_TYPE.bor],
 }
+
+VALID_CL_ENVIRONMENTS = [
+    constants.CL_ENVIRONMENT.mainnet,
+    constants.CL_ENVIRONMENT.mumbai,
+    constants.CL_ENVIRONMENT.local,
+]
+
+VALID_LOG_LEVELS = [
+    constants.LOG_LEVEL.error,
+    constants.LOG_LEVEL.warn,
+    constants.LOG_LEVEL.info,
+    constants.LOG_LEVEL.debug,
+    constants.LOG_LEVEL.trace,
+]
 
 DEV_PARAMS = [
     "should_deploy_l1",  # boolean
@@ -79,8 +97,14 @@ def sanity_check_polygon_args(plan, input_args):
     cl_chain_id = network_params.get("cl_chain_id")
     el_chain_id = network_params.get("el_chain_id")
     validate_chain_ids(cl_chain_id, el_chain_id)
-    for p in input_args.get("participants"):
+
+    participants = input_args.get("participants")
+    _validate_participants_count(participants)
+    for p in participants:
         _validate_participant(p)
+
+    cl_environment = network_params.get("cl_environment")
+    validate_cl_environment(cl_environment, participants)
 
     plan.print("Sanity check passed")
 
@@ -182,19 +206,19 @@ def validate_chain_ids(cl_chain_id, el_chain_id):
         )
 
 
+def _validate_participants_count(participants):
+    participants_count = math.sum([p.get("count") for p in participants])
+    if participants_count >= len(prefunded_accounts_module.PREFUNDED_ACCOUNTS):
+        fail(
+            "The total number of participants '{}' exceeds the number of prefunded accounts '{}'. Please generate additional prefunded accounts by following the instructions in 'src/prefunded_accounts/README.md'.".format(
+                participants_count, len(prefunded_accounts_module.PREFUNDED_ACCOUNTS)
+            )
+        )
+
+
 def _validate_participant(p):
-    _validate_str(
-        p, "cl_type", [constants.CL_TYPE.heimdall, constants.CL_TYPE.heimdall_v2]
-    )
-    _validate_str(
-        p,
-        "el_type",
-        [
-            constants.EL_TYPE.bor,
-            constants.EL_TYPE.bor_modified_for_heimdall_v2,
-            constants.EL_TYPE.erigon,
-        ],
-    )
+    _validate_str(p, "cl_type", VALID_CL_CLIENTS)
+    _validate_str(p, "el_type", VALID_EL_CLIENTS)
 
     # Validate client combination.
     cl_type = p.get("cl_type")
@@ -210,15 +234,8 @@ def _validate_participant(p):
     else:
         fail('The CL client "{}" has no valid client combination.'.format(cl_type))
 
-    log_levels = [
-        constants.LOG_LEVEL.error,
-        constants.LOG_LEVEL.warn,
-        constants.LOG_LEVEL.info,
-        constants.LOG_LEVEL.debug,
-        constants.LOG_LEVEL.trace,
-    ]
-    _validate_str(p, "cl_log_level", log_levels)
-    _validate_str(p, "el_log_level", log_levels)
+    _validate_str(p, "cl_log_level", VALID_LOG_LEVELS)
+    _validate_str(p, "el_log_level", VALID_LOG_LEVELS)
 
     # Heimdall (v1) only supports "error", "info", "debug" or "none" log levels.
     # ERROR: Failed to parse default log level (pair *:trace, list *:trace): Expected either "info", "debug", "error" or "none" level, given trace
@@ -237,6 +254,27 @@ def _validate_participant(p):
         )
 
     _validate_strictly_positive_int(p, "count")
+
+
+# The CL environment is only used in Heimdall (v1) templates to specify the height for applying
+# specific selection algorithms, span overrides, or hardforks. It also determines the default seeds.
+def validate_cl_environment(cl_environment, participants):
+    devnet_cl_type = participants[0].get("cl_type")
+
+    if cl_environment:
+        if devnet_cl_type != constants.CL_TYPE.heimdall:
+            fail(
+                'Only heimdall (v1) supports the CL environment but found "{}" devnet CL type.'.format(
+                    devnet_cl_type
+                )
+            )
+
+        if cl_environment not in VALID_CL_ENVIRONMENTS:
+            fail(
+                'Invalid CL environment: "{}". Allowed values: {}.'.format(
+                    cl_environment, VALID_CL_ENVIRONMENTS
+                )
+            )
 
 
 def _validate_str(input, attribute, allowed_values):

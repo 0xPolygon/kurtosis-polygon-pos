@@ -5,6 +5,10 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+  actions: write
+
 concurrency:
   group: deploy-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -22,7 +26,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -42,7 +46,7 @@ jobs:
           kurtosis version
 
       - name: Install foundry
-        uses: foundry-rs/foundry-toolchain@v1
+        uses: foundry-rs/foundry-toolchain@de808b1eea699e761c404bda44ba8f21aba30b2c # v1.3.1
         with:
           version: ${{ env.FOUNDRY_VERSION }}
 
@@ -52,26 +56,8 @@ jobs:
       - name: Inspect enclave
         run: kurtosis enclave inspect ${{ env.ENCLAVE_NAME }}
 
-      - name: Check devnet status
-        env:
-          ENCLAVE: ${{ env.ENCLAVE_NAME }}
-        run: bash scripts/discover.sh && bash scripts/monitor.sh
-
       - name: Test state syncs
-        run: |
-          export L1_RPC_URL="http://$(kurtosis port print ${{ env.ENCLAVE_NAME }} el-1-geth-lighthouse rpc)"
-          matic_contract_addresses=$(kurtosis files inspect ${{ env.ENCLAVE_NAME }} matic-contract-addresses contractAddresses.json | tail -n +2 | jq)
-          export L1_DEPOSIT_MANAGER_PROXY_ADDRESS=$(echo $matic_contract_addresses | jq --raw-output '.root.DepositManagerProxy')
-          export ERC20_TOKEN_ADDRESS=$(echo $matic_contract_addresses | jq --raw-output '.root.tokens.MaticToken')
-          export FUNDER_PRIVATE_KEY="0xd40311b5a5ca5eaeb48dfba5403bde4993ece8eccf4190e98e19fcd4754260ea" # unless it has been changed.
-          bash ./scripts/send_state_sync.sh
-          echo
-
-          export L2_CL_API_URL=$(kurtosis port print ${{ env.ENCLAVE_NAME }} l2-cl-1-heimdall-bor-validator http)
-          export L2_CL_NODE_TYPE=heimdall
-          export L2_RPC_URL=$(kurtosis port print ${{ env.ENCLAVE_NAME }} l2-el-1-bor-heimdall-validator rpc)
-          export L2_STATE_RECEIVER_ADDRESS=$(kurtosis files inspect ${{ env.ENCLAVE_NAME }} l2-el-genesis genesis.json | tail -n +2 | jq --raw-output '.config.bor.stateReceiverContract')
-          bash ./scripts/check_state_sync.sh
+        run: kurtosis service exec ${{ env.ENCLAVE_NAME }} test-runner "bats --filter-tags pos,bridge,matic,pol --recursive tests/"
 
       - name: Dump enclave
         if: always()
@@ -91,26 +77,39 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
-
       - id: set-matrix
         run: |
-          files=$(ls -R ./.github/tests/*.yml)
-          matrix=$(echo "$files" | jq -R -s -c 'split("\n")[:-1]')
-          echo "matrix=$matrix" >> $GITHUB_OUTPUT
+          file_paths=$(ls -R ./.github/tests/{*,*/*}.yml | grep -Ev "cl-el-genesis|external-l1|nightly")
+          echo "file_paths=${file_paths}"
+
+          matrix=$(echo "${file_paths}" | while read -r file_path; do
+            file_name=$(basename -s ".yml" "${file_path}")
+            folder_name=$(basename $(dirname "${file_path}"))
+            if [[ "${folder_name}" == "tests" ]]; then
+              job_name="${file_name}"
+            else
+              job_name="${folder_name}-${file_name}"
+            fi
+            echo "{\"name\": \"$job_name\", \"path\": \"$file_path\"}"
+          done | jq -s -c '.')
+          echo "matrix=${matrix}"
+
+          echo "matrix=${matrix}" >> $GITHUB_OUTPUT
 
   run-with-args:
     needs: list-ymls
+    name: run-with-${{ matrix.test.name }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        file_name: ${{ fromJson(needs.list-ymls.outputs.matrix) }}
+        test: ${{ fromJson(needs.list-ymls.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -130,7 +129,7 @@ jobs:
           kurtosis version
 
       - name: Install foundry
-        uses: foundry-rs/foundry-toolchain@v1
+        uses: foundry-rs/foundry-toolchain@de808b1eea699e761c404bda44ba8f21aba30b2c # v1.3.1
         with:
           version: ${{ env.FOUNDRY_VERSION }}
 
@@ -140,51 +139,31 @@ jobs:
           yq --version
 
       - name: Run Starlark
-        run: kurtosis run --enclave=${{ env.ENCLAVE_NAME }} --args-file=${{ matrix.file_name }} --show-enclave-inspect=false --verbosity=DETAILED .
+        run: kurtosis run --enclave=${{ env.ENCLAVE_NAME }} --args-file=${{ matrix.test.path }} --show-enclave-inspect=false --verbosity=DETAILED .
 
       - name: Inspect enclave
         run: kurtosis enclave inspect ${{ env.ENCLAVE_NAME }}
 
-      - name: Check devnet status
-        env:
-          ENCLAVE: ${{ env.ENCLAVE_NAME }}
+      - name: Check if test runner is deployed
+        id: check-test-runner
         run: |
-          bash scripts/discover.sh
+          # The test runner is deployed by default.
+          test_runner_deployed=true
 
-          # If the devnet only contains one validator, don't check the peer count.
-          file_name=$(basename "${{ matrix.file_name }}" ".yml")
-          if [[ "${file_name}" =~ .*"single-validator" ]]; then
-            export EXPECTED_MIN_CL_PEERS=0
-            export EXPECTED_MIN_EL_PEERS=0
+          # Verify if additional services are defined and ensure the test runner is deployed.
+          additional_services=$(yq '.polygon_pos_package.additional_services' ${{ matrix.test.path }})
+          if [[ "${additional_services}" != "null" ]]; then
+            is_test_runner_deployed=$(yq '.polygon_pos_package.additional_services | contains(["test_runner"])' ${{ matrix.test.path }})
+            if [[ "${is_test_runner_deployed}" != "true" ]]; then
+              test_runner_deployed=false
+            fi
           fi
-          bash scripts/monitor.sh
+
+          echo "test_runner_deployed=${test_runner_deployed}" >> $GITHUB_OUTPUT
 
       - name: Test state syncs
-        run: |
-          export L1_RPC_URL="http://$(kurtosis port print ${{ env.ENCLAVE_NAME }} el-1-geth-lighthouse rpc)"
-          matic_contract_addresses=$(kurtosis files inspect ${{ env.ENCLAVE_NAME }} matic-contract-addresses contractAddresses.json | tail -n +2 | jq)
-          export L1_DEPOSIT_MANAGER_PROXY_ADDRESS=$(echo $matic_contract_addresses | jq --raw-output '.root.DepositManagerProxy')
-          export ERC20_TOKEN_ADDRESS=$(echo $matic_contract_addresses | jq --raw-output '.root.tokens.MaticToken')
-          export FUNDER_PRIVATE_KEY="0xd40311b5a5ca5eaeb48dfba5403bde4993ece8eccf4190e98e19fcd4754260ea" # unless it has been changed.
-          bash ./scripts/send_state_sync.sh
-          echo
-
-          cl_type=$(yq --raw-output '.polygon_pos_package.participants[0].cl_type' ${{ matrix.file_name }})
-          if [[ "${cl_type}" == "null" ]]; then
-            cl_type="heimdall"
-          fi
-          el_type=$(yq --raw-output '.polygon_pos_package.participants[0].el_type' ${{ matrix.file_name }})
-          if [[ "${el_type}" == "null" ]]; then
-            el_type="bor"
-          fi
-          cl_node_name="l2-cl-1-${cl_type}-${el_type}-validator"
-          el_node_name="l2-el-1-${el_type}-${cl_type}-validator"
-
-          export L2_CL_API_URL=$(kurtosis port print ${{ env.ENCLAVE_NAME }} "${cl_node_name}" http)
-          export L2_CL_NODE_TYPE="${cl_type}"
-          export L2_RPC_URL=$(kurtosis port print ${{ env.ENCLAVE_NAME }} "${el_node_name}" rpc)
-          export L2_STATE_RECEIVER_ADDRESS=$(kurtosis files inspect ${{ env.ENCLAVE_NAME }} l2-el-genesis genesis.json | tail -n +2 | jq --raw-output '.config.bor.stateReceiverContract')
-          bash ./scripts/check_state_sync.sh
+        if: steps.check-test-runner.outputs.test_runner_deployed == 'true'
+        run: kurtosis service exec ${{ env.ENCLAVE_NAME }} test-runner "bats --filter-tags pos,bridge,matic,pol --recursive tests/"
 
       - name: Dump enclave
         if: always()
@@ -193,8 +172,7 @@ jobs:
       - name: Generate archive name
         if: always()
         run: |
-          file_name=$(basename "${{ matrix.file_name }}" ".yml")
-          archive_name="dump_run_with_args_${file_name}_${{ github.run_id }}"
+          archive_name="dump_run_with_args_${{ matrix.test.name }}_${{ github.run_id }}"
           echo "ARCHIVE_NAME=${archive_name}" >> "$GITHUB_ENV"
           echo "Generated archive name: ${archive_name}"
 
@@ -212,7 +190,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -232,7 +210,7 @@ jobs:
           kurtosis version
 
       - name: Install foundry
-        uses: foundry-rs/foundry-toolchain@v1
+        uses: foundry-rs/foundry-toolchain@de808b1eea699e761c404bda44ba8f21aba30b2c # v1.3.1
         with:
           version: ${{ env.FOUNDRY_VERSION }}
 
@@ -245,26 +223,8 @@ jobs:
       - name: Inspect enclave
         run: kurtosis enclave inspect ${{ env.ENCLAVE_NAME }}
 
-      - name: Check devnet status
-        env:
-          ENCLAVE: ${{ env.ENCLAVE_NAME }}
-        run: bash scripts/discover.sh && bash scripts/monitor.sh
-
       - name: Test state syncs
-        run: |
-          export L1_RPC_URL="http://$(kurtosis port print ${{ env.ENCLAVE_NAME }} el-1-geth-lighthouse rpc)"
-          matic_contract_addresses=$(kurtosis files inspect ${{ env.ENCLAVE_NAME }} matic-contract-addresses contractAddresses.json | tail -n +2 | jq)
-          export L1_DEPOSIT_MANAGER_PROXY_ADDRESS=$(echo $matic_contract_addresses | jq --raw-output '.root.DepositManagerProxy')
-          export ERC20_TOKEN_ADDRESS=$(echo $matic_contract_addresses | jq --raw-output '.root.tokens.MaticToken')
-          export FUNDER_PRIVATE_KEY="0xd40311b5a5ca5eaeb48dfba5403bde4993ece8eccf4190e98e19fcd4754260ea" # unless it has been changed.
-          bash ./scripts/send_state_sync.sh
-          echo
-
-          export L2_CL_API_URL=$(kurtosis port print ${{ env.ENCLAVE_NAME }} l2-cl-1-heimdall-bor-validator http)
-          export L2_CL_NODE_TYPE=heimdall
-          export L2_RPC_URL=$(kurtosis port print ${{ env.ENCLAVE_NAME }} l2-el-1-bor-heimdall-validator rpc)
-          export L2_STATE_RECEIVER_ADDRESS=$(kurtosis files inspect ${{ env.ENCLAVE_NAME }} l2-el-genesis genesis.json | tail -n +2 | jq --raw-output '.config.bor.stateReceiverContract')
-          bash ./scripts/check_state_sync.sh
+        run: kurtosis service exec ${{ env.ENCLAVE_NAME }} test-runner "bats --filter-tags pos,bridge,matic,pol --recursive tests/"
 
       - name: Dump enclave
         if: always()
@@ -284,7 +244,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -304,7 +264,7 @@ jobs:
           kurtosis version
 
       - name: Install foundry
-        uses: foundry-rs/foundry-toolchain@v1
+        uses: foundry-rs/foundry-toolchain@de808b1eea699e761c404bda44ba8f21aba30b2c # v1.3.1
         with:
           version: ${{ env.FOUNDRY_VERSION }}
 
@@ -332,32 +292,25 @@ jobs:
           kurtosis files inspect ${{ env.ENCLAVE_NAME }} matic-contract-addresses contractAddresses.json | tail -n +2 | jq > matic-contract-addresses.json
           jq . matic-contract-addresses.json
 
+      - name: Stop L2 participants
+        run: |
+          kurtosis service stop ${{ env.ENCLAVE_NAME }} l2-cl-1-heimdall-bor-validator
+          kurtosis service stop ${{ env.ENCLAVE_NAME }} rabbitmq-l2-cl-1-validator
+          kurtosis service stop ${{ env.ENCLAVE_NAME }} l2-cl-2-heimdall-bor-validator
+          kurtosis service stop ${{ env.ENCLAVE_NAME }} rabbitmq-l2-cl-2-validator
+
+          kurtosis service stop ${{ env.ENCLAVE_NAME }} l2-el-1-bor-heimdall-validator
+          kurtosis service stop ${{ env.ENCLAVE_NAME }} l2-el-2-bor-heimdall-validator
+          kurtosis service stop ${{ env.ENCLAVE_NAME }} l2-el-3-bor-heimdall-rpc
+
       - name: Run Starlark for the second time
         run: kurtosis run --enclave=${{ env.ENCLAVE_NAME }} --args-file=./.github/tests/cl-el-genesis/polygon-pos-with-cl-el-genesis.yml --show-enclave-inspect=false --verbosity=DETAILED .
 
       - name: Inspect enclave
         run: kurtosis enclave inspect ${{ env.ENCLAVE_NAME }}
 
-      - name: Check devnet status
-        env:
-          ENCLAVE: ${{ env.ENCLAVE_NAME }}
-        run: bash scripts/discover.sh && bash scripts/monitor.sh
-
       - name: Test state syncs
-        run: |
-          export L1_RPC_URL="http://$(kurtosis port print ${{ env.ENCLAVE_NAME }} el-1-geth-lighthouse rpc)"
-          matic_contract_addresses=$(kurtosis files inspect ${{ env.ENCLAVE_NAME }} matic-contract-addresses contractAddresses.json | tail -n +2 | jq)
-          export L1_DEPOSIT_MANAGER_PROXY_ADDRESS=$(echo $matic_contract_addresses | jq --raw-output '.root.DepositManagerProxy')
-          export ERC20_TOKEN_ADDRESS=$(echo $matic_contract_addresses | jq --raw-output '.root.tokens.MaticToken')
-          export FUNDER_PRIVATE_KEY="0xd40311b5a5ca5eaeb48dfba5403bde4993ece8eccf4190e98e19fcd4754260ea" # unless it has been changed.
-          bash ./scripts/send_state_sync.sh
-          echo
-
-          export L2_CL_API_URL=$(kurtosis port print ${{ env.ENCLAVE_NAME }} l2-cl-1-heimdall-bor-validator http)
-          export L2_CL_NODE_TYPE=heimdall
-          export L2_RPC_URL=$(kurtosis port print ${{ env.ENCLAVE_NAME }} l2-el-1-bor-heimdall-validator rpc)
-          export L2_STATE_RECEIVER_ADDRESS=$(kurtosis files inspect ${{ env.ENCLAVE_NAME }} l2-el-genesis genesis.json | tail -n +2 | jq --raw-output '.config.bor.stateReceiverContract')
-          bash ./scripts/check_state_sync.sh
+        run: kurtosis service exec ${{ env.ENCLAVE_NAME }} test-runner "bats --filter-tags pos,bridge,matic,pol --recursive tests/"
 
       - name: Dump enclave
         if: always()

@@ -1,3 +1,0 @@
-polygon_pos_package:
-  setup_images:
-    contract_deployer: leovct/pos-contract-deployer-node-20:4a361e7

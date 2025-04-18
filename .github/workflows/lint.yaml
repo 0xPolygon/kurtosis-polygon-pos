@@ -5,12 +5,15 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 concurrency:
   group: lint-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 env:
-  KURTOSIS_VERSION: "1.5.0"
+  KURTOSIS_VERSION: "1.4.4"
 
 jobs:
   lint:

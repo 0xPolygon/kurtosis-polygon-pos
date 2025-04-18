@@ -1,149 +1,121 @@
-constants = import_module("../package_io/constants.star")
 contract_util = import_module("../contracts/util.star")
-el_cl_launcher = import_module("../el_cl_launcher.star")
 
-PROMETHEUS_IMAGE = "prom/prometheus:v3.2.0"
-GRAFANA_VERSION = "11.5.2"
-GRAFANA_DASHBOARDS = "../../static_files/grafana/dashboards"
-PANOPTICHAIN_IMAGE = "ghcr.io/0xpolygon/panoptichain:v1.2.2"  # https://github.com/0xPolygon/panoptichain/releases
+PROMETHEUS_PACKAGE = "github.com/kurtosis-tech/prometheus-package/main.star@f5ce159aec728898e3deb827f6b921f8ecfc527f"
+PROMETHEUS_IMAGE = "prom/prometheus:v3.2.1"
 
+GRAFANA_PACKAGE = "github.com/kurtosis-tech/grafana-package/main.star@c8ff0b52d25deb0bc4ec95971dcf25b2fca11287"
+GRAFANA_IMAGE = "grafana/grafana:11.6.0"
+GRAFANA_DASHBOARDS = "../../static_files/additional_services/grafana/dashboards"
 
-def get_metrics_jobs(plan):
-    metrics_jobs = []
-    for service in plan.get_services():
-        if "metrics" not in service.ports:
-            continue
-
-        metrics_paths = ["/metrics", "/debug/metrics/prometheus"]
-
-        for metrics_path in metrics_paths:
-            metrics_jobs.append(
-                {
-                    "Name": service.name + metrics_path,
-                    "Endpoint": "{0}:{1}".format(
-                        service.ip_address, service.ports["metrics"].number
-                    ),
-                    "MetricsPath": metrics_path,
-                }
-            )
-
-    return metrics_jobs
+PANOPTICHAIN_IMAGE = "ghcr.io/0xpolygon/panoptichain:v2.3.0"
+PANOPTICHAIN_PORT = 9090
+PANOPTICHAIN_METRICS_PATH = "/metrics"
 
 
-def get_l2_config(plan, participants):
-    rpcs = {}
-    heimdall_urls = {}
-
-    participant_index = 0
-    validator_index = 0
-
-    for participant in participants:
-        for _ in range(participant.get("count")):
-            el_node_name = el_cl_launcher._generate_el_node_name(
-                participant, participant_index + 1
-            )
-            el_service = plan.get_service(name=el_node_name)
-
-            rpcs[el_node_name] = "http://{}:{}".format(
-                el_service.ip_address, el_service.ports["rpc"].number
-            )
-
-            participant_index += 1
-            if not participant.get("is_validator"):
-                continue
-
-            cl_node_name = el_cl_launcher._generate_cl_node_name(
-                participant, validator_index + 1
-            )
-            cl_service = plan.get_service(name=cl_node_name)
-
-            heimdall_urls[cl_node_name] = struct(
-                tendermint="http://{}:{}".format(
-                    cl_service.ip_address, cl_service.ports["rpc"].number
-                ),
-                heimdall="http://{}:{}".format(
-                    cl_service.ip_address, cl_service.ports["http"].number
-                ),
-            )
-
-            validator_index += 1
-
-    return struct(
-        rpcs=rpcs,
-        heimdall_urls=heimdall_urls,
+def launch(
+    plan,
+    l1_context,
+    l2_context,
+    l2_el_genesis_artifact,
+    contract_addresses_artifact,
+):
+    panoptichain_url = launch_panoptichain(
+        plan,
+        l1_context,
+        l2_context,
+        l2_el_genesis_artifact,
+        contract_addresses_artifact,
     )
+    prometheus_url = launch_prometheus(
+        plan, l2_context.all_participants, panoptichain_url
+    )
+    launch_grafana(plan, prometheus_url)
 
 
 def launch_panoptichain(
     plan,
-    l1_rpcs,
-    l1_chain_id,
-    l2_participants,
-    l2_chain_id,
+    l1_context,
+    l2_context,
+    l2_el_genesis_artifact,
+    contract_addresses_artifact,
 ):
-    contract_addresses_artifact = plan.get_files_artifact(
-        name="matic-contract-addresses"
-    )
-    contract_addresses = contract_util.read_contract_addresses(
-        plan, contract_addresses_artifact
-    )
+    # Retrive L1 rpc urls.
+    l1_rpcs = {}
+    if l1_context.all_participants:
+        for p in l1_context.all_participants:
+            l1_rpcs[p.el_context.service_name] = p.el_context.rpc_http_url
+    else:
+        l1_rpcs = {"external-l1": l1_context.rpc_url}
 
-    l2_el_genesis_artifact = plan.get_files_artifact(name="l2-el-genesis")
-    state_receiver_contract_address = (
-        contract_util.read_state_receiver_contract_address(plan, l2_el_genesis_artifact)
-    )
+    # Retrieve L2 EL and CL urls.
+    l2_el_rpcs = {
+        p.el_context.service_name: p.el_context.rpc_http_url
+        for p in l2_context.all_participants
+    }
+    l2_cl_urls = {
+        p.cl_context.service_name: {
+            "heimdall": p.cl_context.api_url,
+            "tendermint": p.cl_context.rpc_url,
+        }
+        for p in l2_context.all_participants
+    }
 
-    l2_config = get_l2_config(plan, l2_participants)
+    # Retrieve contract addresses.
+    l1_root_chain_proxy_address = contract_util.get_address(
+        plan,
+        contract_name="l1_root_chain_proxy",
+        contract_addresses_artifact=contract_addresses_artifact,
+    )
+    l1_state_sender_address = contract_util.get_address(
+        plan,
+        contract_name="l1_state_sender",
+        contract_addresses_artifact=contract_addresses_artifact,
+    )
+    l2_state_receiver_address = contract_util.get_address(
+        plan,
+        contract_name="l2_state_receiver",
+        l2_el_genesis_artifact=l2_el_genesis_artifact,
+    )
 
     panoptichain_config_artifact = plan.render_templates(
         name="panoptichain-config",
         config={
             "config.yml": struct(
-                template=read_file(src="../../static_files/panoptichain/config.yml"),
+                template=read_file(
+                    src="../../static_files/additional_services/panoptichain/config.yml"
+                ),
                 data={
+                    "l1_chain_id": l1_context.chain_id,
+                    "l2_chain_id": l2_context.el_chain_id,
                     "l1_rpcs": l1_rpcs,
-                    "l2_rpcs": l2_config.rpcs,
-                    "l1_chain_id": l1_chain_id,
-                    "l2_chain_id": l2_chain_id,
-                    "checkpoint_address": contract_addresses.get("root_chain"),
-                    "state_sync_sender_address": contract_addresses.get("state_sender"),
-                    "state_sync_receiver_address": state_receiver_contract_address,
-                    "heimdall_urls": l2_config.heimdall_urls,
+                    "l2_rpcs": l2_el_rpcs,
+                    "heimdall_urls": l2_cl_urls,
+                    "checkpoint_address": l1_root_chain_proxy_address,
+                    "state_sync_sender_address": l1_state_sender_address,
+                    "state_sync_receiver_address": l2_state_receiver_address,
+                    "panoptichain_port": PANOPTICHAIN_PORT,
+                    "panoptichain_metrics_path": PANOPTICHAIN_METRICS_PATH,
                 },
             )
         },
     )
 
-    plan.add_service(
+    service = plan.add_service(
         name="panoptichain",
         config=ServiceConfig(
             image=PANOPTICHAIN_IMAGE,
             ports={
-                "metrics": PortSpec(9090, application_protocol="http"),
+                "metrics": PortSpec(PANOPTICHAIN_PORT, application_protocol="http"),
             },
             files={"/etc/panoptichain": panoptichain_config_artifact},
         ),
     )
+    return service.ports["metrics"].url
 
 
-def launch(
-    plan,
-    l1_participants,
-    l1_chain_id,
-    l2_participants,
-    l2_chain_id,
-):
-    launch_panoptichain(
-        plan,
-        l1_participants,
-        l1_chain_id,
-        l2_participants,
-        l2_chain_id,
-    )
-
-    metrics_jobs = get_metrics_jobs(plan)
-
-    prometheus_url = import_module(constants.PROMETHEUS_PACKAGE).run(
+def launch_prometheus(plan, l2_participants, panoptichain_url):
+    metrics_jobs = generate_metrics_jobs(l2_participants, panoptichain_url)
+    return import_module(PROMETHEUS_PACKAGE).run(
         plan,
         metrics_jobs,
         name="prometheus",
@@ -157,14 +129,36 @@ def launch(
         image=PROMETHEUS_IMAGE,
     )
 
+
+def generate_metrics_jobs(l2_participants, panoptichain_url):
+    unique_metrics_jobs = {}
+    metrics_jobs = [
+        {
+            "Name": "panoptichain",
+            "Endpoint": panoptichain_url.removeprefix("http://"),
+            "MetricsPath": PANOPTICHAIN_METRICS_PATH,
+        }
+    ]
+    for p in l2_participants:
+        for context in [p.cl_context, p.el_context]:
+            if context.service_name not in unique_metrics_jobs:
+                unique_metrics_jobs[context.service_name] = {
+                    "Name": context.service_name,
+                    "Endpoint": context.metrics_url.removeprefix("http://"),
+                    "MetricsPath": "/debug/metrics/prometheus",
+                }
+                metrics_jobs.append(unique_metrics_jobs[context.service_name])
+    return metrics_jobs
+
+
+def launch_grafana(plan, prometheus_url):
     grafana_dashboards_files_artifact = plan.upload_files(
         src=GRAFANA_DASHBOARDS, name="grafana-dashboards"
     )
-
-    import_module(constants.GRAFANA_PACKAGE).run(
+    import_module(GRAFANA_PACKAGE).run(
         plan,
         prometheus_url,
         name="grafana",
-        grafana_version=GRAFANA_VERSION,
+        image=GRAFANA_IMAGE,
         grafana_dashboards_files_artifact=grafana_dashboards_files_artifact,
     )

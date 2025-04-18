@@ -1,0 +1,53 @@
+identity = "{{.node_name}}"
+chain = "{{.config_folder_path}}/genesis.json"
+datadir = "{{.data_folder_path}}"
+verbosity = {{.log_level_to_int}}
+
+syncmode = "full"
+
+[p2p]
+    maxpeers = 200
+    bind = "0.0.0.0"
+    port = {{.discovery_port_number}}
+    nodiscover = true
+    nodekey = "{{.data_folder_path}}/nodekey"
+    [p2p.discovery]
+        static-nodes = {{.static_nodes}}
+
+[heimdall]
+    url = "{{.cl_node_url}}"
+
+[accounts]
+    allow-insecure-unlock = true
+    password = "{{.config_folder_path}}/password.txt"
+    unlock = ["{{.address}}"]
+
+{{if .is_validator}}
+[miner]
+    mine = {{.is_validator}}
+    gaslimit = 30000000
+    gasprice = "25000000000"
+    etherbase = "{{.address}}"
+    extradata = "{{.node_name}}"
+{{end}}
+
+[jsonrpc]
+    ipcpath = "{{.data_folder_path}}/bor.ipc"
+    [jsonrpc.http]
+        enabled = true
+        host = "0.0.0.0"
+        port = {{.rpc_port_number}}
+        api = ["admin", "eth", "net", "web3", "txpool", "bor"]
+        vhosts = ["*"]
+        corsdomain = ["*"]
+    [jsonrpc.ws]
+        enabled = true
+        host = "0.0.0.0"
+        port = {{.ws_port_number}}
+        api = ["admin", "eth", "net", "web3", "txpool", "bor"]
+        origins = ["*"]
+
+[telemetry]
+    metrics = true
+    prometheus-addr = "0.0.0.0:{{.metrics_port_number}}"
+
