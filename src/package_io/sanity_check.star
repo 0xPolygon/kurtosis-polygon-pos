@@ -21,7 +21,6 @@ POLYGON_POS_PARAMS = {
         "validator_config_generator",
     ],
     "network_params": [
-        "admin_address",
         "admin_private_key",
         "preregistered_validator_keys_mnemonic",
         "validator_stake_amount_eth",

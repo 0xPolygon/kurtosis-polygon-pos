@@ -14,6 +14,7 @@ prometheus_grafana = import_module("./src/additional_services/prometheus_grafana
 test_runner = import_module("./src/additional_services/test_runner.star")
 tx_spammer = import_module("./src/additional_services/tx_spammer.star")
 wait = import_module("./src/wait/wait.star")
+wallet = import_module("./src/wallet/wallet.star")
 
 ETHEREUM_PACKAGE = "github.com/ethpandaops/ethereum-package/main.star@4.4.0"
 
@@ -31,6 +32,9 @@ def run(plan, args):
     validator_accounts = get_validator_accounts(participants)
     l2_network_params = polygon_pos_args.get("network_params")
     admin_private_key = hex.normalize(l2_network_params.get("admin_private_key"))
+    admin_address = wallet.derive_address_from_private_key(
+        plan, l2_network_params.get("admin_private_key")
+    )
 
     # Deploy a local L1 if needed.
     # Otherwise, use the provided rpc url.
@@ -44,6 +48,7 @@ def run(plan, args):
             plan,
             ethereum_args,
             l2_network_params.get("preregistered_validator_keys_mnemonic"),
+            admin_address,
         )
         prefunded_accounts_count = len(l1.pre_funded_accounts)
         if prefunded_accounts_count < 13:
@@ -107,7 +112,7 @@ def run(plan, args):
             plan,
             polygon_pos_args,
             validator_config_artifact,
-            l2_network_params.get("admin_address"),
+            admin_address,
         )
     else:
         plan.print("Using L2 EL/CL genesis provided")
@@ -220,7 +225,9 @@ def get_validator_accounts(participants):
     return validator_accounts
 
 
-def deploy_local_l1(plan, ethereum_args, preregistered_validator_keys_mnemonic):
+def deploy_local_l1(
+    plan, ethereum_args, preregistered_validator_keys_mnemonic, admin_address
+):
     # Sanity check the mnemonic used.
     # TODO: Remove this limitation.
     l2_network_params = input_parser.DEFAULT_POLYGON_POS_PACKAGE_ARGS.get(
@@ -232,9 +239,7 @@ def deploy_local_l1(plan, ethereum_args, preregistered_validator_keys_mnemonic):
 
     # Define prefunded accounts on L1.
     l1_network_params = ethereum_args.get("network_params")
-    prefunded_accounts = _merge_l1_prefunded_accounts(
-        l2_network_params.get("admin_address"), l1_network_params
-    )
+    prefunded_accounts = _merge_l1_prefunded_accounts(admin_address, l1_network_params)
     ethereum_args["network_params"] = l1_network_params | {
         "prefunded_accounts": prefunded_accounts
     }
