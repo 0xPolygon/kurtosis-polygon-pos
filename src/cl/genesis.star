@@ -5,10 +5,9 @@ heimdall_v2_genesis = import_module("./heimdall_v2/genesis.star")
 
 
 CL_GENESIS_BUILDER_SCRIPT_FILE_PATH = "../../static_files/cl/genesis/builder.sh"
-CL_GENESIS_TEMPLATE_FOLDER_PATH = "../../static_files/cl/genesis/"
-HEIMDALL_GENESIS_TEMPLATE_FILE_NAME = {
-    constants.CL_TYPE.heimdall: "heimdall.json",
-    constants.CL_TYPE.heimdall_v2: "heimdall-v2.json",
+HEIMDALL_GENESIS_TEMPLATE_FILE_PATH = {
+    constants.CL_TYPE.heimdall: "../../static_files/cl/heimdall/genesis.json",
+    constants.CL_TYPE.heimdall_v2: "../../static_files/cl/heimdall_v2/genesis.json",
 }
 
 
@@ -88,12 +87,7 @@ def generate(
         name="l2-cl-genesis-tmp",
         config={
             "genesis-tmp.json": struct(
-                template=read_file(
-                    "{}/{}".format(
-                        CL_GENESIS_TEMPLATE_FOLDER_PATH,
-                        HEIMDALL_GENESIS_TEMPLATE_FILE_NAME[devnet_cl_type],
-                    )
-                ),
+                template=read_file(HEIMDALL_GENESIS_TEMPLATE_FILE_PATH[devnet_cl_type]),
                 data={
                     # chain params
                     "cl_chain_id": network_params.get("cl_chain_id"),
