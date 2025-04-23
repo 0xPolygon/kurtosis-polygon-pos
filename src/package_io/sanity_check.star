@@ -5,6 +5,7 @@ prefunded_accounts_module = import_module("../prefunded_accounts/accounts.star")
 
 POLYGON_POS_PARAMS = {
     "participants": [
+        "kind",
         "el_type",
         "el_image",
         "el_log_level",
@@ -12,7 +13,6 @@ POLYGON_POS_PARAMS = {
         "cl_image",
         "cl_log_level",
         "cl_db_image",
-        "is_validator",
         "count",
     ],
     "setup_images": [
@@ -21,7 +21,6 @@ POLYGON_POS_PARAMS = {
         "validator_config_generator",
     ],
     "network_params": [
-        "admin_address",
         "admin_private_key",
         "preregistered_validator_keys_mnemonic",
         "validator_stake_amount_eth",
@@ -41,6 +40,11 @@ POLYGON_POS_PARAMS = {
         for field in dir(constants.ADDITIONAL_SERVICES)
     ],
 }
+
+VALID_PARTICIPANT_KINDS = [
+    constants.PARTICIPANT_KIND.validator,
+    constants.PARTICIPANT_KIND.rpc,
+]
 
 VALID_CL_CLIENTS = [constants.CL_TYPE.heimdall, constants.CL_TYPE.heimdall_v2]
 VALID_EL_CLIENTS = [constants.EL_TYPE.bor, constants.EL_TYPE.erigon]
@@ -217,6 +221,7 @@ def _validate_participants_count(participants):
 
 
 def _validate_participant(p):
+    _validate_str(p, "kind", VALID_PARTICIPANT_KINDS)
     _validate_str(p, "cl_type", VALID_CL_CLIENTS)
     _validate_str(p, "el_type", VALID_EL_CLIENTS)
 

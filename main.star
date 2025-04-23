@@ -1,5 +1,5 @@
 account_util = import_module("./src/account/account.star")
-blockscout = import_module("./src/additional_services/blockscout.star")
+additional_services_launcher = import_module("./src/additional_services/launcher.star")
 cl_genesis = import_module("./src/cl/genesis.star")
 constants = import_module("./src/package_io/constants.star")
 contract_deployer = import_module("./src/contracts/deployer.star")
@@ -10,10 +10,8 @@ hex = import_module("./src/hex/hex.star")
 input_parser = import_module("./src/package_io/input_parser.star")
 math = import_module("./src/math/math.star")
 prefunded_accounts_module = import_module("./src/prefunded_accounts/accounts.star")
-prometheus_grafana = import_module("./src/additional_services/prometheus_grafana.star")
-test_runner = import_module("./src/additional_services/test_runner.star")
-tx_spammer = import_module("./src/additional_services/tx_spammer.star")
 wait = import_module("./src/wait/wait.star")
+wallet = import_module("./src/wallet/wallet.star")
 
 ETHEREUM_PACKAGE = "github.com/ethpandaops/ethereum-package/main.star@4.4.0"
 
@@ -31,6 +29,9 @@ def run(plan, args):
     validator_accounts = get_validator_accounts(participants)
     l2_network_params = polygon_pos_args.get("network_params")
     admin_private_key = hex.normalize(l2_network_params.get("admin_private_key"))
+    admin_address = wallet.derive_address_from_private_key(
+        plan, l2_network_params.get("admin_private_key")
+    )
 
     # Deploy a local L1 if needed.
     # Otherwise, use the provided rpc url.
@@ -44,6 +45,7 @@ def run(plan, args):
             plan,
             ethereum_args,
             l2_network_params.get("preregistered_validator_keys_mnemonic"),
+            admin_address,
         )
         prefunded_accounts_count = len(l1.pre_funded_accounts)
         if prefunded_accounts_count < 13:
@@ -107,7 +109,7 @@ def run(plan, args):
             plan,
             polygon_pos_args,
             validator_config_artifact,
-            l2_network_params.get("admin_address"),
+            admin_address,
         )
     else:
         plan.print("Using L2 EL/CL genesis provided")
@@ -175,43 +177,29 @@ def run(plan, args):
 
     # Deploy additional services.
     additional_services = polygon_pos_args.get("additional_services")
-    for svc in additional_services:
-        if svc == constants.ADDITIONAL_SERVICES.blockscout:
-            blockscout.launch(plan)
-        elif svc == constants.ADDITIONAL_SERVICES.prometheus_grafana:
-            prometheus_grafana.launch(
-                plan,
-                l1_context,
-                l2_context,
-                l2_el_genesis_artifact,
-                contract_addresses_artifact,
-            )
-        elif svc == constants.ADDITIONAL_SERVICES.test_runner:
-            test_runner.launch(
-                plan,
-                l1_context,
-                l2_context,
-                l2_network_params,
-                l2_el_genesis_artifact,
-                contract_addresses_artifact,
-            )
-        elif svc == constants.ADDITIONAL_SERVICES.tx_spammer:
-            tx_spammer.launch(plan)
-        else:
-            fail("Invalid additional service: %s" % (svc))
+    additional_services_launcher.launch(
+        plan,
+        additional_services,
+        l1_context,
+        l2_context,
+        l2_network_params,
+        l2_el_genesis_artifact,
+        contract_addresses_artifact,
+    )
 
 
 def get_validator_accounts(participants):
     prefunded_accounts = prefunded_accounts_module.PREFUNDED_ACCOUNTS
 
     validator_accounts = []
-    participant_index = 0
-    for participant in participants:
-        for _ in range(participant.get("count")):
-            if participant.get("is_validator"):
-                account = prefunded_accounts[participant_index]
+    id = 0
+    for p in participants:
+        for _ in range(p.get("count")):
+            is_validator = p.get("kind") == constants.PARTICIPANT_KIND.validator
+            if is_validator:
+                account = prefunded_accounts[id]
                 validator_accounts.append(account)
-            participant_index += 1
+            id += 1
 
     if len(validator_accounts) == 0:
         fail("There must be at least one validator among the participants!")
@@ -219,7 +207,9 @@ def get_validator_accounts(participants):
     return validator_accounts
 
 
-def deploy_local_l1(plan, ethereum_args, preregistered_validator_keys_mnemonic):
+def deploy_local_l1(
+    plan, ethereum_args, preregistered_validator_keys_mnemonic, admin_address
+):
     # Sanity check the mnemonic used.
     # TODO: Remove this limitation.
     l2_network_params = input_parser.DEFAULT_POLYGON_POS_PACKAGE_ARGS.get(
@@ -231,9 +221,7 @@ def deploy_local_l1(plan, ethereum_args, preregistered_validator_keys_mnemonic):
 
     # Define prefunded accounts on L1.
     l1_network_params = ethereum_args.get("network_params")
-    prefunded_accounts = _merge_l1_prefunded_accounts(
-        l2_network_params.get("admin_address"), l1_network_params
-    )
+    prefunded_accounts = _merge_l1_prefunded_accounts(admin_address, l1_network_params)
     ethereum_args["network_params"] = l1_network_params | {
         "prefunded_accounts": prefunded_accounts
     }

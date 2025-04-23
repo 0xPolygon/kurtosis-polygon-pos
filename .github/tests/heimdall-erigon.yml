@@ -1,15 +1,12 @@
 polygon_pos_package:
   participants:
-    # validators
-    - cl_type: heimdall
+    - kind: validator
+      cl_type: heimdall
       el_type: erigon
-      is_validator: true
       count: 4
-
-    # rpcs
-    - cl_type: heimdall
+    - kind: rpc
+      cl_type: heimdall
       el_type: erigon
-      is_validator: false
       count: 2
 
   network_params:

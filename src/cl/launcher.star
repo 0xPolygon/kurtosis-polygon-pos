@@ -23,13 +23,13 @@ def launch(
     node_ids,
     l1_rpc_url,
 ):
-    rabbitmq_name = rabbitmq.generate_name(id)
+    rabbitmq_name = "rabbitmq-l2-cl-{}-{}".format(id, participant.get("kind"))
     rabbitmq_image = participant.get("cl_db_image")
     rabbitmq_url = rabbitmq.launch(plan, rabbitmq_name, rabbitmq_image)
 
     launch_method = _get_launcher(plan, participant)
-    cl_node_name = _generate_name(participant, id)
-    el_node_name = el_launcher.generate_name(participant, id, is_validator=True)
+    cl_node_name = generate_name(participant, id)
+    el_node_name = el_launcher.generate_name(participant, id)
     el_rpc_url = "http://{}:{}".format(el_node_name, el_shared.RPC_PORT_NUMBER)
     service = launch_method(
         plan,
@@ -85,7 +85,8 @@ def _get_launcher(plan, participant):
     return LAUNCHERS.get(cl_type)
 
 
-def _generate_name(participant, id):
+def generate_name(participant, id):
     cl_type = participant.get("cl_type")
     el_type = participant.get("el_type")
-    return "l2-cl-{}-{}-{}-validator".format(id, cl_type, el_type)
+    suffix = participant.get("kind")
+    return "l2-cl-{}-{}-{}-{}".format(id, cl_type, el_type, suffix)

@@ -22,9 +22,9 @@ syncmode = "full"
     password = "{{.config_folder_path}}/password.txt"
     unlock = ["{{.address}}"]
 
-{{if .is_validator}}
+{{if eq .kind "validator"}}
 [miner]
-    mine = {{.is_validator}}
+    mine = true
     gaslimit = 30000000
     gasprice = "25000000000"
     etherbase = "{{.address}}"

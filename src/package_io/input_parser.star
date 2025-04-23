@@ -41,6 +41,7 @@ DEFAULT_ETHEREUM_PACKAGE_ARGS = {
 }
 
 DEFAULT_POLYGON_POS_PARTICIPANT = {
+    "kind": constants.PARTICIPANT_KIND.validator,
     "el_type": constants.EL_TYPE.bor,
     "el_image": DEFAULT_EL_IMAGES[constants.EL_TYPE.bor],
     "el_log_level": constants.LOG_LEVEL.info,
@@ -48,7 +49,6 @@ DEFAULT_POLYGON_POS_PARTICIPANT = {
     "cl_image": DEFAULT_CL_IMAGES[constants.CL_TYPE.heimdall],
     "cl_log_level": constants.LOG_LEVEL.info,
     "cl_db_image": DEFAULT_CL_DB_IMAGE,
-    "is_validator": True,
     "count": 1,
 }
 
@@ -56,11 +56,13 @@ DEFAULT_POLYGON_POS_PACKAGE_ARGS = {
     "participants": [
         DEFAULT_POLYGON_POS_PARTICIPANT
         | {
+            "kind": constants.PARTICIPANT_KIND.validator,
             "count": 2,
         },
         DEFAULT_POLYGON_POS_PARTICIPANT
         | {
-            "is_validator": False,
+            "kind": constants.PARTICIPANT_KIND.rpc,
+            "count": 1,
         },
     ],
     "setup_images": {
@@ -71,7 +73,6 @@ DEFAULT_POLYGON_POS_PACKAGE_ARGS = {
     "network_params": {
         # Admin account generated using `cast wallet new`.
         # This private key is used to deploy Polygon PoS contracts on both L1 and L2.
-        "admin_address": "0x74Ed6F462Ef4638dc10FFb05af285e8976Fb8DC9",
         "admin_private_key": "0xd40311b5a5ca5eaeb48dfba5403bde4993ece8eccf4190e98e19fcd4754260ea",
         # Validators params.
         "preregistered_validator_keys_mnemonic": "sibling lend brave explain wait orbit mom alcohol disorder message grace sun",

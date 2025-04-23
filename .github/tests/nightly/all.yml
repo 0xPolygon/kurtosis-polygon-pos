@@ -15,24 +15,23 @@ ethereum_package:
 # Polygon PoS package (L2) configuration.
 polygon_pos_package:
   participants:
-    - el_type: bor
+    - kind: validator
+      el_type: bor
       el_image: 0xpolygon/bor:2.0.1
       el_log_level: info
       cl_type: heimdall
       cl_image: 0xpolygon/heimdall:1.2.3
       cl_db_image: rabbitmq:4.0.6
       cl_log_level: info
-      is_validator: true
       count: 2
-    - el_type: bor
+    - kind: rpc
+      el_type: bor
       cl_type: heimdall
-      is_validator: false
   setup_images:
     contract_deployer: leovct/pos-contract-deployer-node-20:ed58f8a
     el_genesis_builder: leovct/pos-el-genesis-builder:96a19dd
     validator_config_generator: leovct/pos-validator-config-generator:1.2.3-0.1.9
   network_params:
-    admin_address: "0x74Ed6F462Ef4638dc10FFb05af285e8976Fb8DC9"
     admin_private_key: "0xd40311b5a5ca5eaeb48dfba5403bde4993ece8eccf4190e98e19fcd4754260ea"
     ## Validators parameters.
     preregistered_validator_keys_mnemonic: sibling lend brave explain wait orbit mom alcohol disorder message grace sun

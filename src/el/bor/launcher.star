@@ -21,7 +21,6 @@ def launch(
     el_static_nodes,
     el_chain_id,
 ):
-    is_validator = participant.get("is_validator")
     bor_node_config_artifact = plan.render_templates(
         name="{}-node-config".format(el_node_name),
         config={
@@ -32,7 +31,7 @@ def launch(
                     "node_name": el_node_name,
                     "config_folder_path": BOR_CONFIG_FOLDER_PATH,
                     "data_folder_path": BOR_APP_DATA_FOLDER_PATH,
-                    "is_validator": is_validator,
+                    "kind": participant.get("kind"),
                     "address": el_account.eth_tendermint.address,
                     "cl_node_url": cl_node_url,
                     "log_level_to_int": log_level_to_int(

@@ -9,7 +9,14 @@ def new(plan):
         run="cast wallet new --json | jq --raw-output '.[0].private_key' | tr -d '\n'",
     )
     private_key = result.output
+    address = derive_address_from_private_key(plan, private_key)
+    return struct(
+        address=address,
+        private_key=private_key,
+    )
 
+
+def derive_address_from_private_key(plan, private_key):
     result = plan.run_sh(
         name="address-deriver",
         description="Deriving address from private key",
@@ -19,12 +26,7 @@ def new(plan):
             "PRIVATE_KEY": private_key,
         },
     )
-    address = result.output
-
-    return struct(
-        address=address,
-        private_key=private_key,
-    )
+    return result.output
 
 
 def fund(plan, receiver_address, rpc_url, funder_private_key, value="10ether"):

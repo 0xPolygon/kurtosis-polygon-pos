@@ -1,5 +1,9 @@
 math = import_module("../math/math.star")
 
+PARTICIPANT_KIND = struct(
+    validator="validator",
+    rpc="rpc",
+)
 
 EL_TYPE = struct(
     bor="bor",

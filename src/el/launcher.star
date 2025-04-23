@@ -16,14 +16,13 @@ def launch(
     plan,
     participant,
     id,
-    is_validator,
     el_genesis_artifact,
     cl_api_url,
     el_account,
     el_static_nodes,
     el_chain_id,
 ):
-    el_node_name = generate_name(participant, id, is_validator)
+    el_node_name = generate_name(participant, id)
 
     # Generate keystore, nodekey and password.
     el_credentials_artifact = _generate_credentials(
@@ -118,10 +117,10 @@ def _get_launcher(participant):
     return LAUNCHERS.get(el_type)
 
 
-def generate_name(participant, id, is_validator=False):
+def generate_name(participant, id):
     cl_type = participant.get("cl_type")
     el_type = participant.get("el_type")
-    suffix = "validator" if is_validator else "rpc"
+    suffix = participant.get("kind")
     return "l2-el-{}-{}-{}-{}".format(
         id,
         el_type,
