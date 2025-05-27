@@ -1,6 +1,6 @@
 cl_launcher = import_module("./cl/launcher.star")
 cl_shared = import_module("./cl/shared.star")
-constants = import_module("./package_io/constants.star")
+constants = import_module("./config/constants.star")
 el_launcher = import_module("./el/launcher.star")
 el_shared = import_module("./el/shared.star")
 participant_module = import_module("./participant.star")

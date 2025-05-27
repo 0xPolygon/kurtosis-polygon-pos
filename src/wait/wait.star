@@ -1,4 +1,4 @@
-constants = import_module("../package_io/constants.star")
+constants = import_module("../config/constants.star")
 
 
 def wait_for_l1_startup(plan, cl_rpc_url):

@@ -4,20 +4,22 @@ sanity_check = import_module("./sanity_check.star")
 
 DEFAULT_POS_CONTRACT_DEPLOYER_IMAGE = "leovct/pos-contract-deployer-node-20:ed58f8a"
 DEFAULT_POS_EL_GENESIS_BUILDER_IMAGE = "leovct/pos-el-genesis-builder:96a19dd"
-DEFAULT_POS_VALIDATOR_CONFIG_GENERATOR_IMAGE = "leovct/pos-validator-config-generator:1.2.3-0.1.9"  # Based on 0xpolygon/heimdall:1.2.3 and 0xpolygon/heimdall-v2:0.1.9.
+DEFAULT_POS_VALIDATOR_CONFIG_GENERATOR_IMAGE = "leovct/pos-validator-config-generator:1.2.3-0.1.12"  # Based on 0xpolygon/heimdall:1.2.3 and 0xpolygon/heimdall-v2:0.1.12.
 
 DEFAULT_EL_IMAGES = {
-    constants.EL_TYPE.bor: "0xpolygon/bor:2.0.1",
-    constants.EL_TYPE.bor_modified_for_heimdall_v2: "leovct/bor:1a6957c",  # There is no official image yet.
-    constants.EL_TYPE.erigon: "erigontech/erigon:main-0360e94",  # TODO: Use an official tag.
+    constants.EL_TYPE.bor: "0xpolygon/bor:2.0.3",
+    constants.EL_TYPE.bor_modified_for_heimdall_v2: "leovct/bor:84794ac",  # There is no official image yet.
+    constants.EL_TYPE.erigon: "erigontech/erigon:main-latest",  # TODO: Use an official tag.
 }
 
 DEFAULT_CL_IMAGES = {
     constants.CL_TYPE.heimdall: "0xpolygon/heimdall:1.2.3",
-    constants.CL_TYPE.heimdall_v2: "0xpolygon/heimdall-v2:0.1.9",
+    constants.CL_TYPE.heimdall_v2: "0xpolygon/heimdall-v2:0.1.12",
 }
 
 DEFAULT_CL_DB_IMAGE = "rabbitmq:4.1.0"
+
+DEFAULT_E2E_TEST_IMAGE = "leovct/e2e:2aa5ca7"
 
 DEFAULT_ETHEREUM_PACKAGE_ARGS = {
     "participants": [
@@ -92,6 +94,9 @@ DEFAULT_POLYGON_POS_PACKAGE_ARGS = {
     "additional_services": [
         constants.ADDITIONAL_SERVICES.test_runner,
     ],
+    "test_runner_params": {
+        "image": DEFAULT_E2E_TEST_IMAGE,
+    },
 }
 
 DEFAULT_DEV_ARGS = {
@@ -157,6 +162,14 @@ def _parse_polygon_pos_args(plan, polygon_pos_args):
 
     additional_services = polygon_pos_args.get("additional_services", [])
     result["additional_services"] = _parse_additional_services(additional_services)
+
+    is_test_runner_deployed = (
+        constants.ADDITIONAL_SERVICES.test_runner in result["additional_services"]
+    )
+    test_runner_params = polygon_pos_args.get("test_runner_params", {})
+    result["test_runner_params"] = _parse_test_runner_params(
+        is_test_runner_deployed, test_runner_params
+    )
 
     # Sanity check and return the result.
     sanity_check.sanity_check_polygon_args(plan, result)
@@ -291,6 +304,27 @@ def _parse_additional_services(additional_services):
             "additional_services", []
         )
     return additional_services
+
+
+def _parse_test_runner_params(is_test_runner_deployed, test_runner_params):
+    # If the test runner is not deployed, return an empty dict.
+    if not is_test_runner_deployed:
+        return {}
+
+    # Create a mutable copy of test_runner_params.
+    if test_runner_params:
+        test_runner_params = dict(test_runner_params)
+    else:
+        # Set default test runner params if not provided.
+        test_runner_params = dict(
+            DEFAULT_POLYGON_POS_PACKAGE_ARGS.get("test_runner_params", {})
+        )
+
+    for k, v in DEFAULT_POLYGON_POS_PACKAGE_ARGS.get("test_runner_params", {}).items():
+        test_runner_params.setdefault(k, v)
+
+    # Sort the dict and return the result.
+    return _sort_dict_by_values(test_runner_params)
 
 
 def _sort_dict_by_values(d):

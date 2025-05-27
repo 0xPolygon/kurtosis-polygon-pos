@@ -39,6 +39,9 @@ POLYGON_POS_PARAMS = {
         getattr(constants.ADDITIONAL_SERVICES, field)
         for field in dir(constants.ADDITIONAL_SERVICES)
     ],
+    "test_runner_params": [
+        "image",
+    ],
 }
 
 VALID_PARTICIPANT_KINDS = [
@@ -109,6 +112,17 @@ def sanity_check_polygon_args(plan, input_args):
 
     cl_environment = network_params.get("cl_environment")
     validate_cl_environment(cl_environment, participants)
+
+    # Make sure test params are defined only if the test runner is deployed.
+    additional_services = input_args.get("additional_services", [])
+    if constants.ADDITIONAL_SERVICES.test_runner in additional_services:
+        _validate_dict(input_args, "test_runner_params")
+    else:
+        test_runner_params = input_args.get("test_runner_params", {})
+        if test_runner_params:
+            fail(
+                "`test_runner_params` must be empty when the test runner is not deployed."
+            )
 
     plan.print("Sanity check passed")
 

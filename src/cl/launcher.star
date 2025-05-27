@@ -1,5 +1,5 @@
 cl_shared = import_module("./shared.star")
-constants = import_module("../package_io/constants.star")
+constants = import_module("../config/constants.star")
 context = import_module("./context.star")
 el_launcher = import_module("../el/launcher.star")
 el_shared = import_module("../el/shared.star")

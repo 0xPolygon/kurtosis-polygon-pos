@@ -1,4 +1,4 @@
-constants = import_module("../package_io/constants.star")
+constants = import_module("../config/constants.star")
 
 
 def new(address, public_key, private_key):

@@ -2,11 +2,9 @@ contract_util = import_module("../contracts/util.star")
 wallet_module = import_module("../wallet/wallet.star")
 
 
-TEST_RUNNER_IMAGE = "leovct/e2e:bcf4f0d"  # https://github.com/agglayer/e2e
-
-
 def launch(
     plan,
+    test_runner_params,
     l1_context,
     l2_context,
     l2_network_params,
@@ -87,7 +85,7 @@ def launch(
     plan.add_service(
         name="test-runner",
         config=ServiceConfig(
-            image=TEST_RUNNER_IMAGE,
+            image=test_runner_params.get("image"),
             env_vars={
                 # Wallet.
                 "PRIVATE_KEY": wallet.private_key,

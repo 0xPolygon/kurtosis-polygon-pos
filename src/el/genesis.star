@@ -1,4 +1,4 @@
-constants = import_module("../package_io/constants.star")
+constants = import_module("../config/constants.star")
 hex = import_module("../hex/hex.star")
 math = import_module("../math/math.star")
 

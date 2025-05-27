@@ -1,4 +1,4 @@
-constants = import_module("../package_io/constants.star")
+constants = import_module("../config/constants.star")
 
 # Port identifiers and numbers.
 RABBITMQ_AMQP_PORT_ID = "amqp"

@@ -1,4 +1,4 @@
-constants = import_module("../package_io/constants.star")
+constants = import_module("../config/constants.star")
 contract_util = import_module("../contracts/util.star")
 heimdall_genesis = import_module("./heimdall/genesis.star")
 heimdall_v2_genesis = import_module("./heimdall_v2/genesis.star")

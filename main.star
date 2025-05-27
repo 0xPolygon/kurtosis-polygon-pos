@@ -1,13 +1,13 @@
 account_util = import_module("./src/account/account.star")
 additional_services_launcher = import_module("./src/additional_services/launcher.star")
 cl_genesis = import_module("./src/cl/genesis.star")
-constants = import_module("./src/package_io/constants.star")
+constants = import_module("./src/config/constants.star")
 contract_deployer = import_module("./src/contracts/deployer.star")
 el_cl_launcher = import_module("./src/el_cl_launcher.star")
 el_genesis = import_module("./src/el/genesis.star")
 el_shared = import_module("./src/el/shared.star")
 hex = import_module("./src/hex/hex.star")
-input_parser = import_module("./src/package_io/input_parser.star")
+input_parser = import_module("./src/config/input_parser.star")
 math = import_module("./src/math/math.star")
 prefunded_accounts_module = import_module("./src/prefunded_accounts/accounts.star")
 wait = import_module("./src/wait/wait.star")
@@ -176,10 +176,9 @@ def run(plan, args):
     )
 
     # Deploy additional services.
-    additional_services = polygon_pos_args.get("additional_services")
     additional_services_launcher.launch(
         plan,
-        additional_services,
+        polygon_pos_args,
         l1_context,
         l2_context,
         l2_network_params,

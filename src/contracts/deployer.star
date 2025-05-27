@@ -1,4 +1,4 @@
-constants = import_module("../package_io/constants.star")
+constants = import_module("../config/constants.star")
 
 CONTRACTS_CONFIG_FILE_PATH = "../../static_files/contracts"
 

@@ -1,5 +1,5 @@
 bor_launcher = import_module("./bor/launcher.star")
-constants = import_module("../package_io/constants.star")
+constants = import_module("../config/constants.star")
 context = import_module("./context.star")
 erigon_launcher = import_module("./erigon/launcher.star")
 shared = import_module("./shared.star")

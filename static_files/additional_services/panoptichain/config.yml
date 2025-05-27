@@ -7,7 +7,7 @@ http:
 
 providers:
   system:
-    interval: 15
+    interval: 15s
 
   rpc:
     {{range $label, $url := .l1_rpcs}}
@@ -33,13 +33,13 @@ providers:
       tendermint_url: "{{$urls.tendermint}}"
       heimdall_url: "{{$urls.heimdall}}"
       label: "{{$label}}"
-      interval: 5
+      interval: 5s
+      version: {{$.heimdall_version}}
     {{end}}
 
 networks:
   - name: "L1"
     chain_id: "{{.l1_chain_id}}"
-    polygon_pos: true
 
   - name: "L2"
     chain_id: "{{.l2_chain_id}}"
