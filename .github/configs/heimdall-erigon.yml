@@ -3,11 +3,11 @@ polygon_pos_package:
     - kind: validator
       cl_type: heimdall
       el_type: erigon
-      count: 4
+      count: 10
     - kind: rpc
       cl_type: heimdall
       el_type: erigon
-      count: 2
+      count: 5
 
   network_params:
     cl_environment: local
