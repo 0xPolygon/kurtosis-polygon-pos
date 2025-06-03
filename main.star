@@ -13,7 +13,7 @@ prefunded_accounts_module = import_module("./src/prefunded_accounts/accounts.sta
 wait = import_module("./src/wait/wait.star")
 wallet = import_module("./src/wallet/wallet.star")
 
-ETHEREUM_PACKAGE = "github.com/ethpandaops/ethereum-package/main.star@4.4.0"
+ETHEREUM_PACKAGE = "github.com/ethpandaops/ethereum-package/main.star@4.6.0"
 
 
 def run(plan, args):
