@@ -30,7 +30,7 @@ polygon_pos_package:
   setup_images:
     contract_deployer: leovct/pos-contract-deployer-node-20:ed58f8a
     el_genesis_builder: leovct/pos-el-genesis-builder:96a19dd
-    validator_config_generator: leovct/pos-validator-config-generator:1.2.3-0.1.12
+    validator_config_generator: leovct/pos-validator-config-generator:1.2.3-0.1.27
   network_params:
     admin_private_key: "0xd40311b5a5ca5eaeb48dfba5403bde4993ece8eccf4190e98e19fcd4754260ea"
     ## Validators parameters.

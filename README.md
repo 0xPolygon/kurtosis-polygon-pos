@@ -299,7 +299,7 @@ polygon_pos_package:
       # Leave blank to use the default image for the client type.
       # Defaults by client:
       # - heimdall: "0xpolygon/heimdall:1.2.3"
-      # - heimdall-v2: "0xpolygon/heimdall-v2:0.1.12"
+      # - heimdall-v2: "0xpolygon/heimdall-v2:0.1.27"
       cl_image: 0xpolygon/heimdall:1.2.3
 
       # The docker image that should be used for the CL's client database.
@@ -329,8 +329,8 @@ polygon_pos_package:
     # Default: "leovct/pos-el-genesis-builder:96a19dd"
     el_genesis_builder: leovct/pos-el-genesis-builder:96a19dd
     # Image used to generate L2 CL/EL validators configurations.
-    # Default: "leovct/pos-validator-config-generator:1.2.3-0.1.12"
-    validator_config_generator: leovct/pos-validator-config-generator:1.2.3-0.1.12
+    # Default: "leovct/pos-validator-config-generator:1.2.3-0.1.27"
+    validator_config_generator: leovct/pos-validator-config-generator:1.2.3-0.1.27
 
   # L2 network parameters.
   network_params:
