@@ -45,7 +45,7 @@ const config: Config = {
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
           editUrl:
-            'https://github.com/0xPolygon/kurtosis-polygon-pos/tree/main/docs',
+            'https://github.com/0xPolygon/kurtosis-polygon-pos/edit/main/docs',
         },
         blog: false, // Optional: disable the blog plugin
         theme: {
