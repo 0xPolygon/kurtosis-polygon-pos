@@ -22,7 +22,7 @@ This guide will help you get started quickly. For more details, see the [full do
 Run Kurtosis linter:
 
 ```bash
-kurtosis lint .
+kurtosis lint --format .
 ```
 
 ### Testing
@@ -49,7 +49,7 @@ npm run build
 To preview docs locally:
 
 ```bash
-npm run start
+npm run serve
 ```
 
 Then visit http://localhost:3000.
