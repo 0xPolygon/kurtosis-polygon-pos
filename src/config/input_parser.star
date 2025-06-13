@@ -59,12 +59,12 @@ DEFAULT_POLYGON_POS_PACKAGE_ARGS = {
         DEFAULT_POLYGON_POS_PARTICIPANT
         | {
             "kind": constants.PARTICIPANT_KIND.validator,
-            "count": 2,
+            "count": 10,
         },
         DEFAULT_POLYGON_POS_PARTICIPANT
         | {
             "kind": constants.PARTICIPANT_KIND.rpc,
-            "count": 1,
+            "count": 5,
         },
     ],
     "setup_images": {
