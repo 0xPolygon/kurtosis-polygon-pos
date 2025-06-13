@@ -9,10 +9,6 @@ permissions:
   contents: read
   actions: write
 
-concurrency:
-  group: nightly-${{ github.ref }}
-  cancel-in-progress: true
-
 env:
   ENCLAVE_NAME: pos
 
