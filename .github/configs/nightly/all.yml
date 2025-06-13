@@ -17,7 +17,7 @@ polygon_pos_package:
   participants:
     - kind: validator
       el_type: bor
-      el_image: 0xpolygon/bor:2.0.3
+      el_image: 0xpolygon/bor:2.1.0
       el_log_level: info
       cl_type: heimdall
       cl_image: 0xpolygon/heimdall:1.2.3
