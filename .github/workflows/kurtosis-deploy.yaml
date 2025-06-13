@@ -27,7 +27,7 @@ env:
 jobs:
   run-without-args:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -54,7 +54,7 @@ jobs:
 
   list-ymls:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 1
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
@@ -82,7 +82,7 @@ jobs:
     needs: list-ymls
     name: run-with-${{ matrix.file.name }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -132,7 +132,7 @@ jobs:
 
   run-with-external-l1:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -163,7 +163,7 @@ jobs:
 
   run-with-cl-el-genesis:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 

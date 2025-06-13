@@ -102,7 +102,7 @@ def wait_for_node_startup(plan, service_name):
         assertion="!=",
         target_value="",
         interval="1s",
-        timeout="10s",
+        timeout="60s",
     )
 
 

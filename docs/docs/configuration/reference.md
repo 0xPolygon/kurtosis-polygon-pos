@@ -67,7 +67,7 @@ Default: two validators and one rpc.
 | kind          | string | validator            | Role of the node in the network: `validator` or `rpc`.                                      |
 | cl_type       | string | heimdall             | Consensus Layer (CL) client type.                                                           |
 | cl_image      | string | 0xpolygon/heimdall:1.2.3 | Image for the CL client.                                                                |
-| cl_db_image   | string | rabbitmq:4.1.0       | Image for the CL database.                                                                  |
+| cl_db_image   | string | rabbitmq:4.1         | Image for the CL database.                                                                  |
 | cl_log_level  | string | info                 | Log level for the CL client.                                                                |
 | el_type       | string | bor                  | Execution Layer (EL) client type.                                                           |
 | el_image      | string | 0xpolygon/bor:2.0.3  | Image for the EL client.                                                                    |
@@ -80,7 +80,7 @@ Default: two validators and one rpc.
 |----------------------------|--------|----------------------------------------------------|-------------------------------------------------|
 | contract_deployer          | string | leovct/pos-contract-deployer-node-20:ed58f8a       | Image used to deploy MATIC contracts to L1.     |
 | el_genesis_builder         | string | leovct/pos-el-genesis-builder:96a19dd              | Image used to create the L2 EL genesis file.    |
-| validator_config_generator | string | leovct/pos-validator-config-generator:1.2.3-0.1.12 | Image used to generate validator configs.       |
+| validator_config_generator | string | leovct/pos-validator-config-generator:1.2.3-0.1.32 | Image used to generate validator configs.       |
 
 ### `network_params`
 
@@ -117,6 +117,6 @@ The `additional_services` array lets you enable optional tools and utilities alo
 
 ### `test_runner_params`
 
-| Field                 | Type   | Default            | Description                                     |
-|-----------------------|--------|--------------------|-------------------------------------------------|
-| image                 | string | leovct/e2e:2aa5ca7 | Image used to deploy the test runner - used to run [agglayer/e2e](https://github.com/agglayer/e2e) tests. |
+| Field                 | Type   | Default                | Description                                     |
+|-----------------------|--------|------------------------|-------------------------------------------------|
+| image                 | string | leovct/e2e:318d97d-pos | Image used to deploy the test runner - used to run [agglayer/e2e](https://github.com/agglayer/e2e) tests. |
