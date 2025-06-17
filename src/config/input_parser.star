@@ -7,7 +7,7 @@ DEFAULT_POS_EL_GENESIS_BUILDER_IMAGE = "leovct/pos-el-genesis-builder:96a19dd"
 DEFAULT_POS_VALIDATOR_CONFIG_GENERATOR_IMAGE = "leovct/pos-validator-config-generator:1.2.3-0.1.12"  # Based on 0xpolygon/heimdall:1.2.3 and 0xpolygon/heimdall-v2:0.1.12.
 
 DEFAULT_EL_IMAGES = {
-    constants.EL_TYPE.bor: "0xpolygon/bor:2.0.3",
+    constants.EL_TYPE.bor: "0xpolygon/bor:2.1.0",
     constants.EL_TYPE.bor_modified_for_heimdall_v2: "leovct/bor:84794ac",  # There is no official image yet.
     constants.EL_TYPE.erigon: "erigontech/erigon:main-latest",  # TODO: Use an official tag.
 }
@@ -24,33 +24,33 @@ DEFAULT_E2E_TEST_IMAGE = "leovct/e2e:2aa5ca7"
 DEFAULT_ETHEREUM_PACKAGE_ARGS = {
     "participants": [
         {
-            "el_type": "geth",
-            "el_image": "ethereum/client-go:v1.14.13",
             "cl_type": "lighthouse",
-            "cl_image": "sigp/lighthouse:v6.0.1",
+            "cl_image": "ethpandaops/lighthouse:unstable-6135f41",
+            "el_type": "geth",
+            "el_image": "ethereum/client-go:v1.15.11",
             "use_separate_vc": True,
             "vc_type": "lighthouse",
-            "vc_image": "sigp/lighthouse:v6.0.1",
+            "vc_image": "ethpandaops/lighthouse:unstable-6135f41",
             "count": 1,
         },
     ],
     "network_params": {
-        "preset": "minimal",
-        "seconds_per_slot": 1,
         "network_id": constants.DEFAULT_L1_CHAIN_ID,
         "prefunded_accounts": "",
+        "preset": "minimal",
+        "seconds_per_slot": 1,
     },
 }
 
 DEFAULT_POLYGON_POS_PARTICIPANT = {
     "kind": constants.PARTICIPANT_KIND.validator,
+    "cl_type": constants.CL_TYPE.heimdall,
+    "cl_image": DEFAULT_CL_IMAGES[constants.CL_TYPE.heimdall],
+    "cl_db_image": DEFAULT_CL_DB_IMAGE,
+    "cl_log_level": constants.LOG_LEVEL.info,
     "el_type": constants.EL_TYPE.bor,
     "el_image": DEFAULT_EL_IMAGES[constants.EL_TYPE.bor],
     "el_log_level": constants.LOG_LEVEL.info,
-    "cl_type": constants.CL_TYPE.heimdall,
-    "cl_image": DEFAULT_CL_IMAGES[constants.CL_TYPE.heimdall],
-    "cl_log_level": constants.LOG_LEVEL.info,
-    "cl_db_image": DEFAULT_CL_DB_IMAGE,
     "count": 1,
 }
 

@@ -37,7 +37,7 @@ def launch(
                     # Port numbers.
                     "rest_api_port_number": cl_shared.REST_API_PORT_NUMBER,
                     "grpc_port_number": cl_shared.GRPC_PORT_NUMBER,
-                    "cometbft_rpc_port_number": cl_shared.RPC_PORT_NUMBER,
+                    "rpc_port_number": cl_shared.RPC_PORT_NUMBER,
                 },
             ),
             "client.toml": struct(
@@ -46,7 +46,7 @@ def launch(
                 ),
                 data={
                     "cl_chain_id": network_params.get("cl_chain_id"),
-                    "cometbft_rpc_port_number": cl_shared.RPC_PORT_NUMBER,
+                    "rpc_port_number": cl_shared.RPC_PORT_NUMBER,
                 },
             ),
             "config.toml": struct(
@@ -60,7 +60,7 @@ def launch(
                     "persistent_peers": cl_node_ids,
                     # Port numbers.
                     "proxy_app_port_number": cl_shared.PROXY_LISTEN_PORT_NUMBER,
-                    "cometbft_rpc_port_number": cl_shared.RPC_PORT_NUMBER,
+                    "rpc_port_number": cl_shared.RPC_PORT_NUMBER,
                     "p2p_listen_port_number": cl_shared.NODE_LISTEN_PORT_NUMBER,
                     "metrics_port_number": cl_shared.METRICS_PORT_NUMBER,
                 },

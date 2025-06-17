@@ -1,4 +1,4 @@
-##### RPC and REST config #####
+##### RPC and REST configs #####
 
 # AMQP endpoint.
 amqp_url = "{{.amqp_url}}"
@@ -10,7 +10,7 @@ bor_rpc_url = "{{.el_rpc_url}}"
 eth_rpc_url = "{{.l1_rpc_url}}"
 
 # RPC endpoint for Tendermint.
-tendermint_rpc_url = "http://0.0.0.0:{{.tendermint_rpc_port_number}}"
+tendermint_rpc_url = "http://0.0.0.0:{{.rpc_port_number}}"
 
 # Polygon Sub Graph URL for self-heal mechanism (optional).
 sub_graph_url = ""

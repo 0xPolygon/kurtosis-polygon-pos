@@ -9,6 +9,6 @@ keyring-backend = "os"
 # CLI output format (text|json)
 output = "text"
 # <host>:<port> to CometBFT RPC interface for this chain
-node = "tcp://0.0.0.0:{{.cometbft_rpc_port_number}}"
+node = "tcp://0.0.0.0:{{.rpc_port_number}}"
 # Transaction broadcasting mode (sync|async)
 broadcast-mode = "sync"

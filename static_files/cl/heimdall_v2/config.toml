@@ -1,4 +1,7 @@
-# NOTE: This part of the config is similar to heimdall-config.toml (heimdall-v1).
+# This is a TOML config file.
+# For more information, see https://github.com/toml-lang/toml
+
+# NOTE: This config is similar to heimdall-config.toml in heimdall-v1.
 
 # NOTE: Any path below can be absolute (e.g. "/var/myawesomeapp/data") or
 # relative to the home directory (e.g. "data"). The home directory is
@@ -85,7 +88,7 @@ filter_peers = false
 [rpc]
 
 # TCP or UNIX socket address for the RPC server to listen on
-laddr = "tcp://0.0.0.0:{{.cometbft_rpc_port_number}}"
+laddr = "tcp://0.0.0.0:{{.rpc_port_number}}"
 
 # A list of origins a cross-domain request can be executed from
 # Default value '[]' disables cors support
@@ -228,10 +231,10 @@ addr_book_file = "config/addrbook.json"
 addr_book_strict = false
 
 # Maximum number of inbound peers
-max_num_inbound_peers = 40
+max_num_inbound_peers = 100
 
 # Maximum number of outbound peers to connect to, excluding persistent peers
-max_num_outbound_peers = 10
+max_num_outbound_peers = 100
 
 # List of node IDs, to which a connection will be (re)established ignoring any existing limits
 unconditional_peer_ids = ""

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
-# Deploy MATIC contracts to L2.
+# Deploy MATIC contracts to L2 and synchronize state on L1.
 # For reference: https://github.com/maticnetwork/contracts/tree/v0.3.11/deploy-migrations
 
 CONTRACT_ADDRESSES_FILE="/opt/contracts/contractAddresses.json"

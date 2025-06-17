@@ -1,0 +1,123 @@
+name: kurtosis-deploy
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
+
+env:
+  ENCLAVE_NAME: pos
+
+jobs:
+  run-without-args:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pre kurtosis run
+        uses: ./.github/actions/kurtosis-pre-run
+        with:
+          docker_username: ${{ secrets.DOCKER_USERNAME }}
+          docker_token: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Kurtosis run
+        run: kurtosis run --enclave=${{ env.ENCLAVE_NAME }} .
+
+      - name: Inspect enclave
+        run: kurtosis enclave inspect ${{ env.ENCLAVE_NAME }}
+
+      - name: Test state syncs
+        run: kurtosis service exec ${{ env.ENCLAVE_NAME }} test-runner "bats --filter-tags pos,bridge,matic,pol --recursive tests/"
+
+      - name: Post kurtosis run
+        if: always()
+        uses: ./.github/actions/kurtosis-post-run
+        with:
+          enclave_name: ${{ env.ENCLAVE_NAME }}
+
+  list-ymls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: set-matrix
+        run: |
+          file_paths=$(ls -R ./.github/configs/{*,*/*}.yml | grep -Ev "nightly")
+          echo "file_paths=${file_paths}"
+
+          matrix=$(echo "${file_paths}" | while read -r file_path; do
+            file_name=$(basename -s ".yml" "${file_path}")
+            folder_name=$(basename $(dirname "${file_path}"))
+            if [[ "${folder_name}" == "configs" ]]; then
+              job_name="${file_name}"
+            else
+              job_name="${folder_name}-${file_name}"
+            fi
+            echo "{\"name\": \"$job_name\", \"path\": \"$file_path\"}"
+          done | jq -s -c '.')
+          echo "matrix=${matrix}"
+
+          echo "matrix=${matrix}" >> $GITHUB_OUTPUT
+
+  run-with-args:
+    needs: list-ymls
+    name: run-with-${{ matrix.file.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        file: ${{ fromJson(needs.list-ymls.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pre kurtosis run
+        uses: ./.github/actions/kurtosis-pre-run
+        with:
+          docker_username: ${{ secrets.DOCKER_USERNAME }}
+          docker_token: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Kurtosis run
+        run: kurtosis run --enclave=${{ env.ENCLAVE_NAME }} --args-file=${{ matrix.file.path }} .
+
+      - name: Inspect enclave
+        run: kurtosis enclave inspect ${{ env.ENCLAVE_NAME }}
+
+      - name: Check if test runner is deployed
+        id: check-test-runner
+        run: |
+          # The test runner is deployed by default.
+          test_runner_deployed=true
+
+          # Verify if additional services are defined and ensure the test runner is deployed.
+          additional_services=$(yq '.polygon_pos_package.additional_services' ${{ matrix.file.path }})
+          if [[ "${additional_services}" != "null" ]]; then
+            is_test_runner_deployed=$(yq '.polygon_pos_package.additional_services | contains(["test_runner"])' ${{ matrix.file.path }})
+            if [[ "${is_test_runner_deployed}" != "true" ]]; then
+              test_runner_deployed=false
+            fi
+          fi
+
+          echo "test_runner_deployed=${test_runner_deployed}" >> $GITHUB_OUTPUT
+
+      - name: Test state syncs
+        if: steps.check-test-runner.outputs.test_runner_deployed == 'true'
+        run: kurtosis service exec ${{ env.ENCLAVE_NAME }} test-runner "bats --filter-tags pos,bridge,matic,pol --recursive tests/"
+
+      - name: Post kurtosis run
+        if: always()
+        uses: ./.github/actions/kurtosis-post-run
+        with:
+          enclave_name: ${{ env.ENCLAVE_NAME }}
+          args_filename: ${{ matrix.file.name }}

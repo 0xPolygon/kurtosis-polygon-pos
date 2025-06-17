@@ -1,0 +1,8 @@
+dev:
+  should_deploy_l1: false
+  l1_rpc_url: http://el-1-geth-lighthouse:8545
+
+  should_deploy_matic_contracts: false
+  l2_cl_genesis_filepath: .github/configs/nightly/cl-el-genesis/l2-cl-genesis.json
+  l2_el_genesis_filepath: .github/configs/nightly/cl-el-genesis/l2-el-genesis.json
+  matic_contract_addresses_filepath: .github/configs/nightly/cl-el-genesis/matic-contract-addresses.json

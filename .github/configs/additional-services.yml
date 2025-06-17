@@ -1,0 +1,6 @@
+polygon_pos_package:
+  additional_services:
+    # - blockscout
+    - prometheus_grafana
+    - test_runner
+    # - tx_spammer

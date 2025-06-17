@@ -1,5 +1,2 @@
 tmp/
-
-# temporary files
-.github/tests/regression
-run_regression_tests.sh
+test

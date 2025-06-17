@@ -6,13 +6,13 @@ prefunded_accounts_module = import_module("../prefunded_accounts/accounts.star")
 POLYGON_POS_PARAMS = {
     "participants": [
         "kind",
-        "el_type",
-        "el_image",
-        "el_log_level",
         "cl_type",
         "cl_image",
         "cl_log_level",
         "cl_db_image",
+        "el_type",
+        "el_image",
+        "el_log_level",
         "count",
     ],
     "setup_images": [

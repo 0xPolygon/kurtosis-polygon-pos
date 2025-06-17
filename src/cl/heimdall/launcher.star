@@ -37,7 +37,7 @@ def launch(
                     "persistent_peers": cl_node_ids,
                     # Port numbers.
                     "proxy_app_port_number": cl_shared.PROXY_LISTEN_PORT_NUMBER,
-                    "tendermint_rpc_port_number": cl_shared.RPC_PORT_NUMBER,
+                    "rpc_port_number": cl_shared.RPC_PORT_NUMBER,
                     "p2p_listen_port_number": cl_shared.NODE_LISTEN_PORT_NUMBER,
                     "metrics_port_number": cl_shared.METRICS_PORT_NUMBER,
                 },
@@ -63,7 +63,7 @@ def launch(
                     "l1_rpc_url": l1_rpc_url,
                     # Port numbers.
                     "rest_api_port_number": cl_shared.REST_API_PORT_NUMBER,
-                    "tendermint_rpc_port_number": cl_shared.RPC_PORT_NUMBER,
+                    "rpc_port_number": cl_shared.RPC_PORT_NUMBER,
                 },
             ),
         },

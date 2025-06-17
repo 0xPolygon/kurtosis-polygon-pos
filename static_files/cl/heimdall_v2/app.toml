@@ -2,7 +2,7 @@
 ###                           Base Configuration                            ###
 ###############################################################################
 
-# NOTE: This part of the config is similar to app.toml (heimdall-v1).
+# NOTE: This config is similar to app.toml and heimdall-config.toml in heimdall-v1.
 
 # HaltHeight contains a non-zero block height at which a node will gracefully
 # halt and shutdown that can be used to assist upgrades and testing.
@@ -247,8 +247,8 @@ bor_rpc_url = "{{.el_rpc_url}}"
 # RPC endpoint for the Ethereum chain.
 eth_rpc_url = "{{.l1_rpc_url}}"
 
-# RPC endpoint for cometBFT.
-comet_bft_rpc_url = "http://0.0.0.0:{{.cometbft_rpc_port_number}}"
+# RPC endpoint for CometBFT.
+comet_bft_rpc_url = "http://0.0.0.0:{{.rpc_port_number}}"
 
 # Polygon Sub Graph URL for self-heal mechanism (optional).
 sub_graph_url = ""
@@ -276,4 +276,4 @@ eth_rpc_timeout = "5m0s"
 bor_rpc_timeout = "5m0s"
 no_ack_wait_time = "30m0s"
 
-chain = ""
+chain = "{{.environment}}"

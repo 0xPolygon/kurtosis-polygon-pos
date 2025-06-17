@@ -1,4 +1,11 @@
-# Polygon PoS Kurtosis Package
+---
+slug: /
+sidebar_position: 1
+---
+
+# Overview
+
+👋 Welcome to the Polygon PoS Kurtosis package documentation!
 
 This project provides a modular, reproducible environment for developing, testing, and running [Polygon PoS](https://docs.polygon.technology/pos/) devnets using [Kurtosis](https://kurtosis.com/).
 
@@ -14,16 +21,17 @@ Optional features:
 - Run a transaction spammer to simulate network load.
 - Deploy monitoring solutions such as [Prometheus](https://prometheus.io/), [Grafana](https://grafana.com/), [Panoptichain](https://github.com/0xPolygon/panoptichain) and [Blockscout](https://www.blockscout.com/) to observe the network.
 
-> 🚨 This package is for development and testing only — **not for production use!**
-
+:::info
+This package is for development and testing only — **not for production use!**
+:::
 
 ## Sections
 
-### [Getting Started](./docs/docs/introduction/getting-started.md)
+### [Getting Started](./getting-started.md)
 
 Install Kurtosis and set up your first devnet.
 
-### [Configuration](./docs/docs/configuration/overview.md)
+### [Configuration](../configuration/overview.md)
 
 Learn how to configure your devnet deployment.
 
@@ -31,15 +39,11 @@ Learn how to configure your devnet deployment.
 
 Step-by-step guides for working with devnets in Kurtosis.
 
-- [Interact with the devnet](./docs/docs/guides/interact-with-the-devnet.md)
-- [Run bridge tests](./docs/docs/guides/run-bridge-tests.md)
-- [Partial devnet redeploy](./docs/docs/guides/partial-devnet-redeploy.md)
+- [Interact with the devnet](../guides/interact-with-the-devnet.md)
+- [Run bridge tests](../guides/run-bridge-tests.md)
+- [Partial devnet redeploy](../guides/partial-devnet-redeploy.md)
 
-### [Architecture](./docs/docs/architecture/overview.md)
-
-This section will give you an overview of how the package works.
-
-### [Contributing](./docs/docs/contributing.md)
+### [Contributing](../contributing.md)
 
 Help us improve the package.
 
@@ -47,4 +51,4 @@ Help us improve the package.
 
 References, troubleshooting, and more.
 
-- [FAQ](./docs/docs/appendix/faq.md)
+- [FAQ](../appendix/faq.md)

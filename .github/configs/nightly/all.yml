@@ -2,12 +2,12 @@
 ethereum_package:
   participants:
     - el_type: geth
-      el_image: ethereum/client-go:v1.14.12
+      el_image: ethereum/client-go:v1.15.11
       cl_type: lighthouse
-      cl_image: sigp/lighthouse:v6.0.0
+      cl_image: ethpandaops/lighthouse:unstable-6135f41
       use_separate_vc: true
       vc_type: lighthouse
-      vc_image: sigp/lighthouse:v6.0.0
+      vc_image: ethpandaops/lighthouse:unstable-6135f41
   network_params:
     preset: minimal
     seconds_per_slot: 1
@@ -17,7 +17,7 @@ polygon_pos_package:
   participants:
     - kind: validator
       el_type: bor
-      el_image: 0xpolygon/bor:2.0.3
+      el_image: 0xpolygon/bor:2.1.0
       el_log_level: info
       cl_type: heimdall
       cl_image: 0xpolygon/heimdall:1.2.3
