@@ -21,7 +21,6 @@ ethereum_package:
     # Number of seconds per slot on the Beacon chain.
     seconds_per_slot: 1
 
-
 # Polygon PoS package (L2) configuration.
 polygon_pos_package:
   # Specification of the L2 participants.
@@ -112,20 +111,17 @@ polygon_pos_package:
       el_log_level: info
       count: 1
 
-      
-      
   # Images for contract deployment and configuration.
   # setup_images:
-    # Image used to deploy MATIC contracts to L1.
-    # Default: "leovct/pos-contract-deployer-node-20:1b16c4b"
-    # contract_deployer: leovct/pos-contract-deployer-node-20:ed58f8a
-    # Image used to create the L2 EL genesis file.
-    # Default: "leovct/pos-el-genesis-builder:96a19dd"
-    # el_genesis_builder: leovct/pos-el-genesis-builder:96a19dd
-    # Image used to generate L2 CL/EL validators configurations.
-    # Default: "leovct/pos-validator-config-generator:1.2.0-0.1.9"
-    # validator_config_generator: leovct/pos-validator-config-generator:1.2.2-0.1.9
-
+  # Image used to deploy MATIC contracts to L1.
+  # Default: "leovct/pos-contract-deployer-node-20:1b16c4b"
+  # contract_deployer: leovct/pos-contract-deployer-node-20:ed58f8a
+  # Image used to create the L2 EL genesis file.
+  # Default: "leovct/pos-el-genesis-builder:96a19dd"
+  # el_genesis_builder: leovct/pos-el-genesis-builder:96a19dd
+  # Image used to generate L2 CL/EL validators configurations.
+  # Default: "leovct/pos-validator-config-generator:1.2.0-0.1.9"
+  # validator_config_generator: leovct/pos-validator-config-generator:1.2.2-0.1.9
   # L2 network parameters.
   network_params:
     ## Validators parameters.

@@ -27,6 +27,7 @@ syncwithwitnesses = true
 
 [heimdall]
     url = "{{.cl_node_url}}"
+    ws-address = "{{.cl_node_ws_url}}"
 
 [accounts]
     allow-insecure-unlock = true
@@ -61,4 +62,3 @@ syncwithwitnesses = true
 [telemetry]
     metrics = true
     prometheus-addr = "0.0.0.0:{{.metrics_port_number}}"
-

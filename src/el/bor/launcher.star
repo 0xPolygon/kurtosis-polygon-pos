@@ -1,5 +1,5 @@
 el_shared = import_module("../shared.star")
-
+cl_shared = import_module("../../cl/shared.star")
 
 # The folder where the bor template config is stored in the repository.
 BOR_TEMPLATE_CONFIG_FILE_PATH = "../../../static_files/el/bor/config.toml"
@@ -21,6 +21,21 @@ def launch(
     el_static_nodes,
     el_chain_id,
 ):
+    # Derive Heimdall WebSocket URL from the REST API URL.
+    # Example: http://l2-cl-1-heimdall:1317 -> ws://l2-cl-1-heimdall:26657/websocket
+    def _generate_cl_ws_url(cl_rest_url):
+        host_port = cl_rest_url
+        if cl_rest_url.startswith("http://"):
+            host_port = cl_rest_url.removeprefix("http://")
+        elif cl_rest_url.startswith("https://"):
+            host_port = cl_rest_url.removeprefix("https://")
+
+        host_port = host_port.rstrip("/")
+        host = host_port.split(":")[0]
+        return "ws://{}:{}{}".format(host, cl_shared.RPC_PORT_NUMBER, "/websocket")
+
+    cl_node_ws_url = _generate_cl_ws_url(cl_node_url)
+
     bor_node_config_artifact = plan.render_templates(
         name="{}-node-config".format(el_node_name),
         config={
@@ -46,6 +61,7 @@ def launch(
                     "ws_port_number": el_shared.WS_PORT_NUMBER,
                     "discovery_port_number": el_shared.DISCOVERY_PORT_NUMBER,
                     "metrics_port_number": el_shared.METRICS_PORT_NUMBER,
+                    "cl_node_ws_url": cl_node_ws_url,
                 },
             ),
         },
