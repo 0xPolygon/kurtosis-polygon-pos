@@ -50,4 +50,3 @@ syncmode = "full"
 [telemetry]
     metrics = true
     prometheus-addr = "0.0.0.0:{{.metrics_port_number}}"
-

@@ -1,0 +1,10 @@
+polygon_pos_package:
+  participants:
+    - kind: validator
+      cl_type: heimdall-v2
+      el_type: erigon
+      count: 4
+    - kind: rpc
+      cl_type: heimdall-v2
+      el_type: erigon
+      count: 2

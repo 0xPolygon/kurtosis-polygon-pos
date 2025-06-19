@@ -7,8 +7,8 @@
 - [Docker Hub](https://hub.docker.com/r/leovct/bor)
 
 ```bash
-bor_branch="heimdall-v2"
-bor_commit_sha="84794ac" # 2025/04/25
+bor_branch="heimdallv2-final"
+bor_commit_sha="3c77074" # 2025/06/13
 image_name="leovct/bor:${bor_commit_sha}"
 git clone --branch "${bor_branch}" git@github.com:maticnetwork/bor.git
 pushd bor
@@ -81,7 +81,7 @@ Note: We do not use the latest version of the [genesis contracts](https://github
 
 ```bash
 heimdall_version="1.2.3" # 2025/04/16
-heimdall_v2_version="0.1.12" # 2025/05/05
+heimdall_v2_version="0.1.32" # 2025/06/12
 image_name="leovct/pos-validator-config-generator:${heimdall_version}-${heimdall_v2_version}"
 docker build \
   --build-arg HEIMDALL_VERSION="${heimdall_version}" \
