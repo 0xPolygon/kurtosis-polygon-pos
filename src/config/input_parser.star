@@ -51,6 +51,8 @@ DEFAULT_POLYGON_POS_PARTICIPANT = {
     "el_type": constants.EL_TYPE.bor,
     "el_image": DEFAULT_EL_IMAGES[constants.EL_TYPE.bor],
     "el_log_level": constants.LOG_LEVEL.info,
+    "el_produce_witness": False,
+    "el_sync_with_witness": False,
     "count": 1,
 }
 

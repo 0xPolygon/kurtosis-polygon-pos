@@ -2,8 +2,19 @@ identity = "{{.node_name}}"
 chain = "{{.config_folder_path}}/genesis.json"
 datadir = "{{.data_folder_path}}"
 verbosity = {{.log_level_to_int}}
-
+{{if eq .kind "stateless"}}
+syncmode = "stateless"
+{{else}}
 syncmode = "full"
+{{end}}
+
+{{if .el_produce_witness}}
+witnessprotocol = true
+{{end}}
+
+{{if .el_sync_with_witness}}
+syncwithwitnesses = true
+{{end}}
 
 [p2p]
     maxpeers = 200
@@ -15,7 +26,8 @@ syncmode = "full"
         static-nodes = {{.static_nodes}}
 
 [heimdall]
-    url = "{{.cl_node_url}}"
+    url = "{{.cl_api_url}}"
+    ws-address = "{{.cl_ws_rpc_url}}"
 
 [accounts]
     allow-insecure-unlock = true

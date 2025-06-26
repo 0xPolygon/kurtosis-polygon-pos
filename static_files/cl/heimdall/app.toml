@@ -19,3 +19,5 @@ halt-height = 0
 #
 # Note: Commitment of state will be attempted on the corresponding block.
 halt-time = 0
+
+chain = ""
