@@ -1,0 +1,199 @@
+INFO [06-24|12:28:10.908] Reading config file                      path=/etc/bor/config.toml
+WARN [06-24|12:28:10.909] Config set via config file will be overridden by cli flags
+INFO [06-24|12:28:10.910] Enabling metrics collection
+INFO [06-24|12:28:10.910] Enabling metrics export to prometheus    path=http://0.0.0.0:7071/debug/metrics/prometheus
+INFO [06-24|12:28:10.910] GRPC Server started                      addr=[::]:3131
+INFO [06-24|12:28:10.911] Try reading as legacy genesis
+INFO [06-24|12:28:11.775] Unlocked account                         address=0x97538585a02A3f1B1297EB9979cE1b34ff953f1E
+INFO [06-24|12:28:11.776] Set global gas cap                       cap=50,000,000
+INFO [06-24|12:28:11.776] Allocated trie memory caches             clean=153.00MiB dirty=256.00MiB
+INFO [06-24|12:28:11.776] Using pebble as the backing database
+INFO [06-24|12:28:11.776] Allocated cache and file handles         database=/var/lib/bor/bor/chaindata cache=512.00MiB handles=524,288
+INFO [06-24|12:28:11.780] Resolving ancient pruner offset          isLastOffset=false offset=0
+INFO [06-24|12:28:11.788] Opened ancient database                  database=/var/lib/bor/bor/chaindata/ancient/chain readonly=false frozen=0 offset=0
+INFO [06-24|12:28:11.788] State scheme set by user                 scheme=path
+ERROR[06-24|12:28:11.788] Head block is not reachable
+INFO [06-24|12:28:11.789] Initialising Ethereum protocol           network=4927 dbversion=<nil>
+INFO [06-24|12:28:11.797] Opened ancient database                  database=/var/lib/bor/bor/chaindata/ancient/state readonly=false frozen=0 offset=0
+INFO [06-24|12:28:11.797] Initialized path database                cache=153.00MiB buffer=256.00MiB history=90000
+INFO [06-24|12:28:11.797] Writing custom genesis block
+INFO [06-24|12:28:11.806] 
+INFO [06-24|12:28:11.806] ---------------------------------------------------------------------------------------------------------------------------------------------------------
+INFO [06-24|12:28:11.806] Chain ID:  4927 (unknown)
+INFO [06-24|12:28:11.806] Consensus: Bor (proof-of-stake), merged from Ethash (proof-of-work)
+INFO [06-24|12:28:11.806] 
+INFO [06-24|12:28:11.806] Pre-Merge hard forks (block based):
+INFO [06-24|12:28:11.806]  - Homestead:                   #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/homestead.md)
+INFO [06-24|12:28:11.806]  - Tangerine Whistle (EIP 150): #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/tangerine-whistle.md)
+INFO [06-24|12:28:11.806]  - Spurious Dragon/1 (EIP 155): #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/spurious-dragon.md)
+INFO [06-24|12:28:11.806]  - Spurious Dragon/2 (EIP 158): #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/spurious-dragon.md)
+INFO [06-24|12:28:11.806]  - Byzantium:                   #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/byzantium.md)
+INFO [06-24|12:28:11.806]  - Constantinople:              #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/constantinople.md)
+INFO [06-24|12:28:11.806]  - Petersburg:                  #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/petersburg.md)
+INFO [06-24|12:28:11.806]  - Istanbul:                    #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/istanbul.md)
+INFO [06-24|12:28:11.806]  - Muir Glacier:                #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/muir-glacier.md)
+INFO [06-24|12:28:11.806]  - Berlin:                      #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/berlin.md)
+INFO [06-24|12:28:11.806]  - London:                      #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/london.md)
+INFO [06-24|12:28:11.806] 
+INFO [06-24|12:28:11.806] Merge configured:
+INFO [06-24|12:28:11.806]  - Hard-fork specification:    https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/paris.md
+INFO [06-24|12:28:11.806]  - Network known to be merged
+INFO [06-24|12:28:11.806]  - Total terminal difficulty:  <nil>
+INFO [06-24|12:28:11.806] 
+INFO [06-24|12:28:11.806] Post-Merge hard forks (block based):
+INFO [06-24|12:28:11.806]  - Shanghai:                    #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/shanghai.md)
+INFO [06-24|12:28:11.806]  - Cancun:                      #0       
+INFO [06-24|12:28:11.806]  - Prague:                      #0       
+INFO [06-24|12:28:11.806] 
+INFO [06-24|12:28:11.806] ---------------------------------------------------------------------------------------------------------------------------------------------------------
+INFO [06-24|12:28:11.806] 
+INFO [06-24|12:28:11.806] Loaded most recent local block           number=0 hash=327285..58794e td=1 age=11s
+WARN [06-24|12:28:11.806] Failed to load snapshot                  err="missing or corrupted snapshot"
+INFO [06-24|12:28:11.807] Rebuilding state snapshot
+INFO [06-24|12:28:11.808] Initialized transaction indexer          range="last 2350000 blocks"
+INFO [06-24|12:28:11.808] Gasprice oracle is ignoring threshold set threshold=25,000,000,000
+WARN [06-24|12:28:11.808] Invalid log index database version; resetting log index
+INFO [06-24|12:28:11.808] Legacy pool tip threshold updated        tip=25,000,000,000
+INFO [06-24|12:28:11.808] Resuming state snapshot generation       root=6233f9..0a4feb accounts=0 slots=0 storage=0.00B dangling=0 elapsed="718.373µs"
+WARN [06-24|12:28:11.808] Miner extra data exceed limit            extra=0x6c322d656c2d312d626f722d6865696d64616c6c2d76322d76616c696461746f72 limit=32
+INFO [06-24|12:28:11.808] Gasprice oracle is ignoring threshold set threshold=25,000,000,000
+INFO [06-24|12:28:11.809] Generated state snapshot                 accounts=8 slots=0 storage=472.00B dangling=0 elapsed=1.904ms
+INFO [06-24|12:28:11.809] Starting Heimdall migration monitor
+INFO [06-24|12:28:11.809] Checking Heimdall version                try=1
+ERROR[06-24|12:28:11.810] Error while fetching heimdallv1 span     error="error while fetching data from Heimdall: response code 501"
+ERROR[06-24|12:28:11.810] Error while fetching heimdallv1 span from db error="pebble: not found"
+ERROR[06-24|12:28:11.811] Heimdall API did not return any chain parameters endpoint=http://l2-cl-1-heimdall-v2-bor-validator:1317/chainmanager/params
+ERROR[06-24|12:28:12.810] Error while fetching heimdallv1 span     error="error while fetching data from Heimdall: response code 501"
+ERROR[06-24|12:28:12.810] Error while fetching heimdallv1 span from db error="pebble: not found"
+ERROR[06-24|12:28:14.812] Error while fetching heimdallv1 span     error="error while fetching data from Heimdall: response code 501"
+ERROR[06-24|12:28:14.812] Error while fetching heimdallv1 span from db error="pebble: not found"
+ERROR[06-24|12:28:17.814] Error while fetching heimdallv1 span     error="error while fetching data from Heimdall: response code 501"
+ERROR[06-24|12:28:17.814] Error while fetching heimdallv1 span from db error="pebble: not found"
+INFO [06-24|12:28:21.810] Checking Heimdall version                try=2
+ERROR[06-24|12:28:21.813] Heimdall API did not return any chain parameters endpoint=http://l2-cl-1-heimdall-v2-bor-validator:1317/chainmanager/params
+ERROR[06-24|12:28:21.814] Error while fetching heimdallv1 span     error="error while fetching data from Heimdall: response code 501"
+ERROR[06-24|12:28:21.814] Error while fetching heimdallv1 span from db error="pebble: not found"
+ERROR[06-24|12:28:26.817] Error while fetching heimdallv1 span     error="error while fetching data from Heimdall: response code 501"
+ERROR[06-24|12:28:26.817] Error while fetching heimdallv1 span from db error="pebble: not found"
+INFO [06-24|12:28:31.811] Checking Heimdall version                try=3
+INFO [06-24|12:28:31.816] Heimdall migrated from v1 to v2          polTokenAddress=0x8E1700577B7aE261753c67e1B93Fe60Dd3e205fa
+INFO [06-24|12:28:31.820] Stored checkpoint snapshot to disk       number=0 hash=327285..58794e
+INFO [06-24|12:28:31.821] Commit Interrupt. Pre-committing the current block block=1
+INFO [06-24|12:28:41.812] Checking Heimdall version                try=4
+INFO [06-24|12:28:41.812] Heimdall version check passed
+INFO [06-24|12:28:41.812] Legacy pool tip threshold updated        tip=25,000,000,000
+INFO [06-24|12:28:41.812] Starting peer-to-peer node               instance=bor/v2.1.1/linux-amd64/go1.24.4
+INFO [06-24|12:28:41.813] Commit Interrupt. Pre-committing the current block block=1
+INFO [06-24|12:28:41.813] Commit new sealing work                  number=1 sealhash=992fde..c940ae txs=0 gas=0 fees=0 elapsed="225.634µs"
+INFO [06-24|12:28:41.813] Waiting for slot to sign and propagate   number=1 hash=0x1a90580      delay-in-sec=18,446,744,070,896,319,594 delay=-2.813s
+INFO [06-24|12:28:41.813] Sealing successful                       number=1 delay=-2.813232022s headerDifficulty=4
+INFO [06-24|12:28:41.816] Successfully sealed new block            number=1 sealhash=992fde..c940ae hash=583441..b35872 elapsed=3.620ms
+INFO [06-24|12:28:41.817] Commit new sealing work                  number=2 sealhash=c85736..68bfdd txs=0 gas=0 fees=0 elapsed="895.792µs"
+INFO [06-24|12:28:41.817] Waiting for slot to sign and propagate   number=2 hash=0x1a90580      delay-in-sec=18,446,744,072,891,847,479 delay=-817.704ms
+INFO [06-24|12:28:41.817] Sealing successful                       number=2 delay=-817.704137ms headerDifficulty=4
+INFO [06-24|12:28:41.818] Indexed transactions                     blocks=2 txs=0 tail=0 elapsed="758.835µs"
+INFO [06-24|12:28:41.820] Successfully sealed new block            number=2 sealhash=c85736..68bfdd hash=dbaf09..214d71 elapsed=2.605ms
+INFO [06-24|12:28:41.822] New local node record                    seq=1,750,768,121,821 id=366b706a7c72f489 ip=127.0.0.1 udp=0 tcp=30303
+INFO [06-24|12:28:41.822] Started P2P networking                   self="enode://93e8717f46b146ebfb99159eb13a5d044c191998656c8b79007b16051bb1ff762d09884e43783d898dd47f6220af040206cabbd45c9a26bb278a522c3d538a1f@127.0.0.1:30303?discport=0"
+INFO [06-24|12:28:41.823] IPC endpoint opened                      url=/var/lib/bor/bor.ipc
+WARN [06-24|12:28:41.824] Sanitizing invalid HTTP read header timeout provided=0s updated=30s
+INFO [06-24|12:28:41.824] HTTP server started                      endpoint=[::]:8545 auth=false prefix= cors=* vhosts=*
+INFO [06-24|12:28:41.824] WebSocket enabled                        url=ws://[::]:8546
+INFO [06-24|12:28:41.824] Started log indexer
+WARN [06-24|12:28:41.826] an error while trying fetching from Heimdall path=/checkpoints/latest attempt=1 error="error while fetching data from Heimdall: response code 500"
+INFO [06-24|12:28:41.826] Retrying again in 5 seconds to fetch data from Heimdall path=/checkpoints/latest attempt=1
+WARN [06-24|12:28:41.830] an error while trying fetching from Heimdall path=/milestones/latest  attempt=1 error="error while fetching data from Heimdall: response code 500"
+INFO [06-24|12:28:41.830] Retrying again in 5 seconds to fetch data from Heimdall path=/milestones/latest  attempt=1
+INFO [06-24|12:28:43.000] Commit new sealing work                  number=3 sealhash=a18a80..3f20a0 txs=0 gas=0 fees=0 elapsed=1.180s
+INFO [06-24|12:28:43.000] Waiting for slot to sign and propagate   number=3 hash=0x1a90580      delay-in-sec=18,446,744,073,709,030,626 delay="-520.99µs"
+INFO [06-24|12:28:43.000] Sealing successful                       number=3 delay="-520.99µs"   headerDifficulty=4
+INFO [06-24|12:28:43.002] Successfully sealed new block            number=3 sealhash=a18a80..3f20a0 hash=d39a5f..f7219b elapsed=2.427ms
+INFO [06-24|12:28:45.001] Commit new sealing work                  number=4 sealhash=ab62be..f3074d txs=0 gas=0 fees=0 elapsed=1.998s
+INFO [06-24|12:28:45.001] Waiting for slot to sign and propagate   number=4 hash=0x1a90580      delay-in-sec=18,446,744,073,708,110,131 delay=-1.441ms
+INFO [06-24|12:28:45.001] Sealing successful                       number=4 delay=-1.441485ms   headerDifficulty=4
+INFO [06-24|12:28:45.003] Successfully sealed new block            number=4 sealhash=ab62be..f3074d hash=abb5f6..1b70c6 elapsed=1.977ms
+INFO [06-24|12:28:46.828] Retrying again in 5 seconds to fetch data from Heimdall path=/checkpoints/latest attempt=2
+INFO [06-24|12:28:46.833] Retrying again in 5 seconds to fetch data from Heimdall path=/milestones/latest  attempt=2
+INFO [06-24|12:28:47.000] Commit new sealing work                  number=5 sealhash=5a138a..561fde txs=0 gas=0 fees=0 elapsed=1.996s
+INFO [06-24|12:28:47.000] Waiting for slot to sign and propagate   number=5 hash=0x1a90580      delay-in-sec=18,446,744,073,708,709,579 delay="-842.037µs"
+INFO [06-24|12:28:47.000] Sealing successful                       number=5 delay="-842.037µs"  headerDifficulty=4
+INFO [06-24|12:28:47.003] Successfully sealed new block            number=5 sealhash=5a138a..561fde hash=c1ca42..f16c66 elapsed=2.352ms
+INFO [06-24|12:28:49.000] Commit new sealing work                  number=6 sealhash=4999c8..a91b22 txs=0 gas=0 fees=0 elapsed=1.996s
+INFO [06-24|12:28:49.000] Waiting for slot to sign and propagate   number=6 hash=0x1a90580      delay-in-sec=18,446,744,073,708,732,674 delay="-818.942µs"
+INFO [06-24|12:28:49.000] Sealing successful                       number=6 delay="-818.942µs"  headerDifficulty=4
+INFO [06-24|12:28:49.003] Successfully sealed new block            number=6 sealhash=4999c8..a91b22 hash=f146f1..32deb3 elapsed=2.944ms
+INFO [06-24|12:28:51.001] Commit new sealing work                  number=7 sealhash=7a73b3..ffa6e4 txs=0 gas=0 fees=0 elapsed=1.997s
+INFO [06-24|12:28:51.001] Waiting for slot to sign and propagate   number=7 hash=0x1a90580      delay-in-sec=18,446,744,073,708,179,809 delay=-1.371ms
+INFO [06-24|12:28:51.001] Sealing successful                       number=7 delay=-1.371807ms   headerDifficulty=4
+INFO [06-24|12:28:51.004] Successfully sealed new block            number=7 sealhash=7a73b3..ffa6e4 hash=64e815..84b2af elapsed=2.938ms
+INFO [06-24|12:28:51.828] Retrying again in 5 seconds to fetch data from Heimdall path=/checkpoints/latest attempt=3
+INFO [06-24|12:28:51.833] Whitelisting new milestone from heimdall block=0 hash=327285..58794e
+INFO [06-24|12:28:52.726] Looking for peers                        peercount=4 tried=5 static=6
+INFO [06-24|12:28:53.000] Commit new sealing work                  number=8 sealhash=6ed1cc..21e80c txs=0 gas=0 fees=0 elapsed=1.996s
+INFO [06-24|12:28:53.000] Waiting for slot to sign and propagate   number=8 hash=0x1a90580      delay-in-sec=18,446,744,073,708,896,166 delay="-655.45µs"
+INFO [06-24|12:28:53.000] Sealing successful                       number=8 delay="-655.45µs"   headerDifficulty=4
+INFO [06-24|12:28:53.002] Successfully sealed new block            number=8 sealhash=6ed1cc..21e80c hash=6d904c..d16d2d elapsed=2.363ms
+INFO [06-24|12:28:55.000] Commit new sealing work                  number=9 sealhash=e465db..1ccac1 txs=0 gas=0 fees=0 elapsed=1.997s
+INFO [06-24|12:28:55.000] Waiting for slot to sign and propagate   number=9 hash=0x1a90580      delay-in-sec=18,446,744,073,709,054,577 delay="-497.039µs"
+INFO [06-24|12:28:55.000] Sealing successful                       number=9 delay="-497.039µs"  headerDifficulty=4
+INFO [06-24|12:28:55.002] Successfully sealed new block            number=9 sealhash=e465db..1ccac1 hash=3fd09b..fff116 elapsed=1.800ms
+INFO [06-24|12:28:56.828] Retrying again in 5 seconds to fetch data from Heimdall path=/checkpoints/latest attempt=4
+INFO [06-24|12:28:57.001] Commit new sealing work                  number=10 sealhash=4d14ce..0bb4c3 txs=0 gas=0 fees=0 elapsed=1.998s
+INFO [06-24|12:28:57.001] Waiting for slot to sign and propagate   number=10 hash=0x1a90580      delay-in-sec=18,446,744,073,708,326,055 delay=-1.225ms
+INFO [06-24|12:28:57.001] Sealing successful                       number=10 delay=-1.225561ms   headerDifficulty=4
+INFO [06-24|12:28:57.003] Successfully sealed new block            number=10 sealhash=4d14ce..0bb4c3 hash=b56e1b..93861d elapsed=1.962ms
+INFO [06-24|12:28:57.837] Whitelisting new milestone from heimdall block=9 hash=3fd09b..fff116
+INFO [06-24|12:28:59.000] Commit new sealing work                  number=11 sealhash=9850d8..52d994 txs=0 gas=0 fees=0 elapsed=1.997s
+INFO [06-24|12:28:59.001] Waiting for slot to sign and propagate   number=11 hash=0x1a90580      delay-in-sec=18,446,744,073,708,586,471 delay="-965.145µs"
+INFO [06-24|12:28:59.001] Sealing successful                       number=11 delay="-965.145µs"  headerDifficulty=4
+INFO [06-24|12:28:59.003] Successfully sealed new block            number=11 sealhash=9850d8..52d994 hash=82f502..6f3454 elapsed=2.656ms
+INFO [06-24|12:28:59.836] Whitelisting new milestone from heimdall block=10 hash=b56e1b..93861d
+INFO [06-24|12:29:01.000] Commit new sealing work                  number=12 sealhash=3f0809..9cd128 txs=0 gas=0 fees=0 elapsed=1.996s
+INFO [06-24|12:29:01.000] Waiting for slot to sign and propagate   number=12 hash=0x1a90580      delay-in-sec=18,446,744,073,709,126,626 delay="-424.99µs"
+INFO [06-24|12:29:01.000] Sealing successful                       number=12 delay="-424.99µs"   headerDifficulty=4
+INFO [06-24|12:29:01.003] Successfully sealed new block            number=12 sealhash=3f0809..9cd128 hash=d288fe..9e2046 elapsed=2.740ms
+WARN [06-24|12:29:01.828] an error while trying fetching from Heimdall path=/checkpoints/latest attempt=5 error="error while fetching data from Heimdall: response code 500"
+INFO [06-24|12:29:01.828] Retrying again in 5 seconds to fetch data from Heimdall path=/checkpoints/latest attempt=5
+INFO [06-24|12:29:01.837] Whitelisting new milestone from heimdall block=11 hash=82f502..6f3454
+INFO [06-24|12:29:03.000] Commit new sealing work                  number=13 sealhash=5b1127..179e46 txs=0 gas=0 fees=0 elapsed=1.997s
+INFO [06-24|12:29:03.001] Waiting for slot to sign and propagate   number=13 hash=0x1a90580      delay-in-sec=18,446,744,073,708,550,713 delay=-1.000ms
+INFO [06-24|12:29:03.001] Sealing successful                       number=13 delay=-1.000903ms   headerDifficulty=4
+INFO [06-24|12:29:03.004] Successfully sealed new block            number=13 sealhash=5b1127..179e46 hash=2a5508..4724a9 elapsed=3.854ms
+INFO [06-24|12:29:03.836] Whitelisting new milestone from heimdall block=12 hash=d288fe..9e2046
+INFO [06-24|12:29:05.000] Commit new sealing work                  number=14 sealhash=be97c8..9c83b5 txs=0 gas=0 fees=0 elapsed=1.995s
+INFO [06-24|12:29:05.001] Waiting for slot to sign and propagate   number=14 hash=0x1a90580      delay-in-sec=18,446,744,073,708,555,531 delay="-996.085µs"
+INFO [06-24|12:29:05.001] Sealing successful                       number=14 delay="-996.085µs"  headerDifficulty=4
+INFO [06-24|12:29:05.004] Successfully sealed new block            number=14 sealhash=be97c8..9c83b5 hash=9f784a..6b5770 elapsed=3.958ms
+INFO [06-24|12:29:05.836] Whitelisting new milestone from heimdall block=13 hash=2a5508..4724a9
+INFO [06-24|12:29:06.828] Retrying again in 5 seconds to fetch data from Heimdall path=/checkpoints/latest attempt=6
+INFO [06-24|12:29:07.001] Commit new sealing work                  number=15 sealhash=0b8ef4..b1b6d3 txs=0 gas=0 fees=0 elapsed=1.996s
+INFO [06-24|12:29:07.001] Waiting for slot to sign and propagate   number=15 hash=0x1a90580      delay-in-sec=18,446,744,073,708,028,259 delay=-1.523ms
+INFO [06-24|12:29:07.001] Sealing successful                       number=15 delay=-1.523357ms   headerDifficulty=4
+INFO [06-24|12:29:07.003] Successfully sealed new block            number=15 sealhash=0b8ef4..b1b6d3 hash=c19182..82074e elapsed=2.446ms
+ERROR[06-24|12:29:07.011] Error while fetching heimdallv2 span from db error="pebble: not found"
+INFO [06-24|12:29:07.013] Latest heimdallv2 span is not updated    storedSpanID=0 respSpanID=0
+ERROR[06-24|12:29:07.015] Error while fetching heimdallv2 span     error="error while fetching data from Heimdall: response code 500"
+ERROR[06-24|12:29:07.016] Error while fetching heimdallv2 span from db error="pebble: not found"
+INFO [06-24|12:29:07.836] Whitelisting new milestone from heimdall block=14 hash=9f784a..6b5770
+ERROR[06-24|12:29:08.018] Error while fetching heimdallv2 span     error="error while fetching data from Heimdall: response code 500"
+ERROR[06-24|12:29:08.018] Error while fetching heimdallv2 span from db error="pebble: not found"
+INFO [06-24|12:29:09.836] Whitelisting new milestone from heimdall block=15 hash=c19182..82074e
+ERROR[06-24|12:29:10.020] Error while fetching heimdallv2 span     error="error while fetching data from Heimdall: response code 500"
+ERROR[06-24|12:29:10.020] Error while fetching heimdallv2 span from db error="pebble: not found"
+WARN [06-24|12:29:11.825] Failed to fetch latest checkpointV2, please check the heimdall endpoint and status of your heimdall node err="context deadline exceeded"
+ERROR[06-24|12:29:13.021] Error while fetching heimdallv2 span     error="error while fetching data from Heimdall: response code 500"
+ERROR[06-24|12:29:13.021] Error while fetching heimdallv2 span from db error="pebble: not found"
+INFO [06-24|12:29:16.821] Looking for peers                        peercount=4 tried=0 static=6
+ERROR[06-24|12:29:17.023] Error while fetching heimdallv2 span     error="error while fetching data from Heimdall: response code 500"
+ERROR[06-24|12:29:17.023] Error while fetching heimdallv2 span from db error="pebble: not found"
+ERROR[06-24|12:29:22.025] Error while fetching heimdallv2 span     error="error while fetching data from Heimdall: response code 500"
+ERROR[06-24|12:29:22.025] Error while fetching heimdallv2 span from db error="pebble: not found"
+ERROR[06-24|12:29:27.039] Error while fetching heimdallv2 span     error="error while fetching data from Heimdall: response code 500"
+ERROR[06-24|12:29:27.039] Error while fetching heimdallv2 span from db error="pebble: not found"
+INFO [06-24|12:29:29.000] Commit Interrupt. Pre-committing the current block block=16
+ERROR[06-24|12:29:32.041] Error while fetching heimdallv2 span     error="error while fetching data from Heimdall: response code 500"
+ERROR[06-24|12:29:32.041] Error while fetching heimdallv2 span from db error="pebble: not found"
+ERROR[06-24|12:29:37.043] Error while fetching heimdallv2 span     error="error while fetching data from Heimdall: response code 500"
+ERROR[06-24|12:29:37.043] Error while fetching heimdallv2 span from db error="pebble: not found"
+ERROR[06-24|12:29:42.045] Error while fetching heimdallv2 span     error="error while fetching data from Heimdall: response code 500"
+ERROR[06-24|12:29:42.045] Error while fetching heimdallv2 span from db error="pebble: not found"

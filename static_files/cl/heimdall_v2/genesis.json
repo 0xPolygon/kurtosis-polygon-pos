@@ -1,6 +1,6 @@
 {
   "app_name": "heimdall-v2",
-  "app_version": "v0.1.16-beta-polygon",
+  "app_version": "v0.1.22-beta-polygon",
   "genesis_time": "1970-01-01T00:00:00.000000000Z",
   "chain_id": "{{.cl_chain_id}}",
   "initial_height": 1,
@@ -9,7 +9,7 @@
     "auth": {
       "params": {
         "max_memo_characters": "256",
-        "tx_sig_limit": "7",
+        "tx_sig_limit": "1",
         "tx_size_cost_per_byte": "10",
         "sig_verify_cost_ed25519": "590",
         "sig_verify_cost_secp256k1": "1000",
@@ -77,7 +77,11 @@
       "buffered_checkpoint": null,
       "last_no_ack": "0",
       "ack_count": "0",
-      "checkpoints": []
+      "checkpoints": [],
+      "checkpoint_signatures": {
+        "signatures": []
+      },
+      "checkpoint_signatures_txhash": ""
     },
     "clerk": {
       "event_records": [],
@@ -99,15 +103,15 @@
             "amount": "100000000000000000000"
           }
         ],
-        "max_deposit_period": "172800s",
-        "voting_period": "172800s",
+        "max_deposit_period": "86400s",
+        "voting_period": "86400s",
         "quorum": "0.334000000000000000",
         "threshold": "0.500000000000000000",
         "veto_threshold": "0.334000000000000000",
         "min_initial_deposit_ratio": "0.000000000000000000",
         "proposal_cancel_ratio": "0.500000000000000000",
         "proposal_cancel_dest": "",
-        "expedited_voting_period": "86400s",
+        "expedited_voting_period": "43200s",
         "expedited_threshold": "0.667000000000000000",
         "expedited_min_deposit": [
           {
@@ -123,10 +127,11 @@
       "constitution": ""
     },
     "milestone": {
+      "milestones": [],
       "params": {
-        "max_milestone_proposition_length": "10",
-        "ff_milestone_threshold": "200",
-        "ff_milestone_block_interval": "100"
+        "ff_milestone_block_interval": 100,
+        "ff_milestone_threshold": 200,
+        "max_milestone_proposition_length": 10
       }
     },
     "params": null,
@@ -137,7 +142,9 @@
         "proposer": {{.proposer}},
         "total_voting_power": "{{.total_voting_power}}"
       },
-      "staking_sequences": []
+      "staking_sequences": [],
+      "previous_block_validator_set": {},
+      "last_block_txs": {}
     },
     "topup": {
       "topup_sequences": [],
@@ -149,6 +156,9 @@
       "block": {
         "max_bytes": "22020096",
         "max_gas": "-1"
+      },
+      "blob": {
+        "max_bytes": "0"
       },
       "evidence": {
         "max_age_num_blocks": "100000",

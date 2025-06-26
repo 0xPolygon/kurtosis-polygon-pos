@@ -38,7 +38,7 @@ def wait_for_l2_startup(plan, cl_api_url, cl_type):
         key1 = "result"
         key2 = "span_id"
     elif cl_type == constants.CL_TYPE.heimdall_v2:
-        endpoint = "bor/span/latest"
+        endpoint = "bor/spans/latest"
         key1 = "span"
         key2 = "id"
     else:

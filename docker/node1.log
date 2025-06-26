@@ -1,0 +1,97 @@
+INFO [06-24|12:28:18.744] Reading config file                      path=/etc/bor/config.toml
+WARN [06-24|12:28:18.745] Config set via config file will be overridden by cli flags
+INFO [06-24|12:28:18.745] Enabling metrics collection
+INFO [06-24|12:28:18.745] Enabling metrics export to prometheus    path=http://0.0.0.0:7071/debug/metrics/prometheus
+INFO [06-24|12:28:18.746] GRPC Server started                      addr=[::]:3131
+INFO [06-24|12:28:18.746] Try reading as legacy genesis
+INFO [06-24|12:28:19.655] Unlocked account                         address=0xeeE6f79486542f85290920073947bc9672C6ACE5
+INFO [06-24|12:28:19.655] Set global gas cap                       cap=50,000,000
+INFO [06-24|12:28:19.655] Allocated trie memory caches             clean=153.00MiB dirty=256.00MiB
+INFO [06-24|12:28:19.655] Using pebble as the backing database
+INFO [06-24|12:28:19.655] Allocated cache and file handles         database=/var/lib/bor/bor/chaindata cache=512.00MiB handles=524,288
+INFO [06-24|12:28:19.659] Resolving ancient pruner offset          isLastOffset=false offset=0
+INFO [06-24|12:28:19.672] Opened ancient database                  database=/var/lib/bor/bor/chaindata/ancient/chain readonly=false frozen=0 offset=0
+INFO [06-24|12:28:19.673] State scheme set by user                 scheme=path
+ERROR[06-24|12:28:19.673] Head block is not reachable
+INFO [06-24|12:28:19.673] Initialising Ethereum protocol           network=4927 dbversion=<nil>
+INFO [06-24|12:28:19.691] Opened ancient database                  database=/var/lib/bor/bor/chaindata/ancient/state readonly=false frozen=0 offset=0
+INFO [06-24|12:28:19.691] Initialized path database                cache=153.00MiB buffer=256.00MiB history=90000
+INFO [06-24|12:28:19.691] Writing custom genesis block
+INFO [06-24|12:28:19.703] 
+INFO [06-24|12:28:19.703] ---------------------------------------------------------------------------------------------------------------------------------------------------------
+INFO [06-24|12:28:19.703] Chain ID:  4927 (unknown)
+INFO [06-24|12:28:19.703] Consensus: Bor (proof-of-stake), merged from Ethash (proof-of-work)
+INFO [06-24|12:28:19.703] 
+INFO [06-24|12:28:19.703] Pre-Merge hard forks (block based):
+INFO [06-24|12:28:19.704]  - Homestead:                   #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/homestead.md)
+INFO [06-24|12:28:19.704]  - Tangerine Whistle (EIP 150): #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/tangerine-whistle.md)
+INFO [06-24|12:28:19.704]  - Spurious Dragon/1 (EIP 155): #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/spurious-dragon.md)
+INFO [06-24|12:28:19.704]  - Spurious Dragon/2 (EIP 158): #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/spurious-dragon.md)
+INFO [06-24|12:28:19.704]  - Byzantium:                   #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/byzantium.md)
+INFO [06-24|12:28:19.704]  - Constantinople:              #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/constantinople.md)
+INFO [06-24|12:28:19.704]  - Petersburg:                  #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/petersburg.md)
+INFO [06-24|12:28:19.704]  - Istanbul:                    #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/istanbul.md)
+INFO [06-24|12:28:19.704]  - Muir Glacier:                #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/muir-glacier.md)
+INFO [06-24|12:28:19.704]  - Berlin:                      #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/berlin.md)
+INFO [06-24|12:28:19.704]  - London:                      #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/london.md)
+INFO [06-24|12:28:19.704] 
+INFO [06-24|12:28:19.704] Merge configured:
+INFO [06-24|12:28:19.704]  - Hard-fork specification:    https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/paris.md
+INFO [06-24|12:28:19.704]  - Network known to be merged
+INFO [06-24|12:28:19.704]  - Total terminal difficulty:  <nil>
+INFO [06-24|12:28:19.704] 
+INFO [06-24|12:28:19.704] Post-Merge hard forks (block based):
+INFO [06-24|12:28:19.704]  - Shanghai:                    #0        (https://github.com/ethereum/execution-specs/blob/master/network-upgrades/mainnet-upgrades/shanghai.md)
+INFO [06-24|12:28:19.704]  - Cancun:                      #0       
+INFO [06-24|12:28:19.704]  - Prague:                      #0       
+INFO [06-24|12:28:19.704] 
+INFO [06-24|12:28:19.704] ---------------------------------------------------------------------------------------------------------------------------------------------------------
+INFO [06-24|12:28:19.704] 
+INFO [06-24|12:28:19.704] Loaded most recent local block           number=0 hash=327285..58794e td=1 age=19s
+WARN [06-24|12:28:19.704] Failed to load snapshot                  err="missing or corrupted snapshot"
+INFO [06-24|12:28:19.705] Rebuilding state snapshot
+INFO [06-24|12:28:19.705] Initialized transaction indexer          range="last 2350000 blocks"
+INFO [06-24|12:28:19.705] Gasprice oracle is ignoring threshold set threshold=25,000,000,000
+WARN [06-24|12:28:19.706] Invalid log index database version; resetting log index
+INFO [06-24|12:28:19.706] Resuming state snapshot generation       root=6233f9..0a4feb accounts=0 slots=0 storage=0.00B dangling=0 elapsed="811.923µs"
+INFO [06-24|12:28:19.706] Legacy pool tip threshold updated        tip=25,000,000,000
+WARN [06-24|12:28:19.706] Miner extra data exceed limit            extra=0x6c322d656c2d322d626f722d6865696d64616c6c2d76322d76616c696461746f72 limit=32
+INFO [06-24|12:28:19.706] Generated state snapshot                 accounts=8 slots=0 storage=472.00B dangling=0 elapsed=1.673ms
+ERROR[06-24|12:28:19.708] Error while fetching heimdallv1 span     error="error while fetching data from Heimdall: response code 501"
+ERROR[06-24|12:28:19.708] Error while fetching heimdallv1 span from db error="pebble: not found"
+ERROR[06-24|12:28:20.710] Error while fetching heimdallv1 span     error="error while fetching data from Heimdall: response code 501"
+ERROR[06-24|12:28:20.710] Error while fetching heimdallv1 span from db error="pebble: not found"
+ERROR[06-24|12:28:22.711] Error while fetching heimdallv1 span     error="error while fetching data from Heimdall: response code 501"
+ERROR[06-24|12:28:22.711] Error while fetching heimdallv1 span from db error="pebble: not found"
+ERROR[06-24|12:28:25.713] Error while fetching heimdallv1 span     error="error while fetching data from Heimdall: response code 501"
+ERROR[06-24|12:28:25.713] Error while fetching heimdallv1 span from db error="pebble: not found"
+ERROR[06-24|12:28:29.714] Error while fetching heimdallv1 span     error="error while fetching data from Heimdall: response code 501"
+ERROR[06-24|12:28:29.715] Error while fetching heimdallv1 span from db error="pebble: not found"
+ERROR[06-24|12:28:34.717] Error while fetching heimdallv1 span     error="error while fetching data from Heimdall: response code 501"
+ERROR[06-24|12:28:34.717] Error while fetching heimdallv1 span from db error="pebble: not found"
+ERROR[06-24|12:28:39.718] Error while fetching heimdallv1 span     error="error while fetching data from Heimdall: response code 501"
+ERROR[06-24|12:28:39.718] Error while fetching heimdallv1 span from db error="pebble: not found"
+ERROR[06-24|12:28:44.720] Error while fetching heimdallv1 span     error="error while fetching data from Heimdall: response code 501"
+ERROR[06-24|12:28:44.720] Error while fetching heimdallv1 span from db error="pebble: not found"
+ERROR[06-24|12:28:49.721] Error while fetching heimdallv1 span     error="error while fetching data from Heimdall: response code 501"
+ERROR[06-24|12:28:49.721] Error while fetching heimdallv1 span from db error="pebble: not found"
+ERROR[06-24|12:28:54.723] Error while fetching heimdallv1 span     error="error while fetching data from Heimdall: response code 501"
+ERROR[06-24|12:28:54.723] Error while fetching heimdallv1 span from db error="pebble: not found"
+ERROR[06-24|12:28:59.725] Error while fetching heimdallv1 span     error="error while fetching data from Heimdall: response code 501"
+ERROR[06-24|12:28:59.725] Error while fetching heimdallv1 span from db error="pebble: not found"
+ERROR[06-24|12:29:04.727] Error while fetching heimdallv1 span     error="error while fetching data from Heimdall: response code 501"
+ERROR[06-24|12:29:04.727] Error while fetching heimdallv1 span from db error="pebble: not found"
+ERROR[06-24|12:29:09.729] Error while fetching heimdallv1 span     error="error while fetching data from Heimdall: response code 501"
+ERROR[06-24|12:29:09.729] Error while fetching heimdallv1 span from db error="pebble: not found"
+ERROR[06-24|12:29:14.731] Error while fetching heimdallv1 span     error="error while fetching data from Heimdall: response code 501"
+ERROR[06-24|12:29:14.731] Error while fetching heimdallv1 span from db error="pebble: not found"
+ERROR[06-24|12:29:19.732] Error while fetching heimdallv1 span     error="error while fetching data from Heimdall: response code 501"
+ERROR[06-24|12:29:19.732] Error while fetching heimdallv1 span from db error="pebble: not found"
+ERROR[06-24|12:29:24.734] Error while fetching heimdallv1 span     error="error while fetching data from Heimdall: response code 501"
+ERROR[06-24|12:29:24.734] Error while fetching heimdallv1 span from db error="pebble: not found"
+ERROR[06-24|12:29:29.735] Error while fetching heimdallv1 span     error="error while fetching data from Heimdall: response code 501"
+ERROR[06-24|12:29:29.735] Error while fetching heimdallv1 span from db error="pebble: not found"
+ERROR[06-24|12:29:34.737] Error while fetching heimdallv1 span     error="error while fetching data from Heimdall: response code 501"
+ERROR[06-24|12:29:34.737] Error while fetching heimdallv1 span from db error="pebble: not found"
+ERROR[06-24|12:29:39.739] Error while fetching heimdallv1 span     error="error while fetching data from Heimdall: response code 501"
+ERROR[06-24|12:29:39.739] Error while fetching heimdallv1 span from db error="pebble: not found"

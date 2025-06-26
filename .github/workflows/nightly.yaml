@@ -15,7 +15,7 @@ env:
 jobs:
   list-ymls:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 1
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
