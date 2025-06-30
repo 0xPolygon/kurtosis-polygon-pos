@@ -1,0 +1,81 @@
+name: monitor-milestones-and-checkpoints
+description: Monitor milestones and checkpoints in a Kurtosis enclave.
+
+inputs:
+  enclave_name:
+    description: The name of the kurtosis enclave
+    required: true
+  args_filename:
+    description: The name of the args file
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Retrieve L2 CL API URL
+      id: l2-cl-api-url
+      shell: bash
+      run: |
+        if [[ -z "${{ inputs.args_filename }}" || "${{ inputs.args_filename }}" == "./.github/configs/additional-services.yml" ]]; then
+          cl_type="heimdall"
+          el_type="bor"
+        else
+          cl_type=$(yq --raw-output '.polygon_pos_package.participants[0].cl_type' ${{ inputs.args_filename }})
+          el_type=$(yq --raw-output '.polygon_pos_package.participants[0].el_type' ${{ inputs.args_filename }})
+        fi
+        l2_cl_api_url=$(kurtosis port print ${{ inputs.enclave_name }} l2-cl-1-${cl_type}-${el_type}-validator http)
+        echo "L2_CL_API_URL=${l2_cl_api_url}" >> "${GITHUB_OUTPUT}"
+        echo "L2_CL_API_URL=${l2_cl_api_url}"
+        echo "L2_CL_NODE_TYPE=${cl_type}" >> "${GITHUB_OUTPUT}"
+        echo "L2_CL_NODE_TYPE=${cl_type}"
+
+    - name: Monitor milestones
+      id: milestone
+      shell: bash
+      run: |
+        l2_cl_api_url=${{ steps.l2-cl-api-url.outputs.L2_CL_API_URL }}
+        l2_cl_node_type=${{ steps.l2-cl-api-url.outputs.L2_CL_NODE_TYPE }}
+        if [[ "${l2_cl_node_type}" == "heimdall" ]]; then
+          milestone_count=$(curl --silent "${l2_cl_api_url}/milestone/count" | jq --raw-output '.result.count')
+        elif [[ "${l2_cl_node_type}" == "heimdall-v2" ]]; then
+          milestone_count=$(curl --silent "${l2_cl_api_url}/milestones/count" | jq --raw-output '.count')
+        else
+          echo "Unsupported CL type: ${l2_cl_node_type}"
+          exit 1
+        fi
+        echo "MILESTONE_COUNT=${milestone_count}" >> "${GITHUB_OUTPUT}"
+        echo "MILESTONE_COUNT=${milestone_count}"
+
+    - name: Monitor checkpoints
+      id: checkpoint
+      shell: bash
+      run: |
+        l2_cl_api_url=${{ steps.l2-cl-api-url.outputs.L2_CL_API_URL }}
+        l2_cl_node_type=${{ steps.l2-cl-api-url.outputs.L2_CL_NODE_TYPE }}
+        if [[ "${l2_cl_node_type}" == "heimdall" ]]; then
+          checkpoint_count=$(curl --silent "${l2_cl_api_url}/checkpoints/count" | jq --raw-output '.result.result')
+        elif [[ "${l2_cl_node_type}" == "heimdall-v2" ]]; then
+          checkpoint_count=$(curl --silent "${l2_cl_api_url}/checkpoints/count" | jq --raw-output '.ack_count')
+        else
+          echo "Unsupported CL type: ${l2_cl_node_type}"
+          exit 1
+        fi
+        echo "CHECKPOINT_COUNT=${checkpoint_count}" >> "${GITHUB_OUTPUT}"
+        echo "CHECKPOINT_COUNT=${checkpoint_count}"
+
+    - name: Job status
+      shell: bash
+      run: |
+        milestone_count=${{ steps.milestone.outputs.MILESTONE_COUNT }}
+        checkpoint_count=${{ steps.checkpoint.outputs.CHECKPOINT_COUNT }}
+        if [[ "${milestone_count}" -lt 1 && "${checkpoint_count}" -lt 1 ]]; then
+          echo "No milestones or checkpoints found, exiting with error."
+          exit 1
+        elif [[ "${milestone_count}" -lt 1 ]]; then
+          echo "No milestones found, exiting with error."
+          exit 1
+        elif [[ "${checkpoint_count}" -lt 1 ]]; then
+          echo "No checkpoints found, exiting with error."
+          exit 1
+        fi
+        echo "Milestones and checkpoints found."
