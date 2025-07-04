@@ -17,7 +17,7 @@ DEFAULT_CL_IMAGES = {
     constants.CL_TYPE.heimdall_v2: "0xpolygon/heimdall-v2:0.2.4",
 }
 
-DEFAULT_CL_DB_IMAGE = "rabbitmq:4.1"
+DEFAULT_CL_DB_IMAGE = "rabbitmq:4.1.2"
 
 DEFAULT_E2E_TEST_IMAGE = "leovct/e2e:9fe80e1"
 

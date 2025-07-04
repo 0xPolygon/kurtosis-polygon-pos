@@ -67,7 +67,7 @@ Default: two validators and one rpc.
 | kind          | string | validator            | Role of the node in the network: `validator` or `rpc`.                                      |
 | cl_type       | string | heimdall             | Consensus Layer (CL) client type.                                                           |
 | cl_image      | string | 0xpolygon/heimdall:1.2.3 | Image for the CL client.                                                                |
-| cl_db_image   | string | rabbitmq:4.1         | Image for the CL database.                                                                  |
+| cl_db_image   | string | rabbitmq:4.1.2       | Image for the CL database.                                                                  |
 | cl_log_level  | string | info                 | Log level for the CL client.                                                                |
 | el_type       | string | bor                  | Execution Layer (EL) client type.                                                           |
 | el_image      | string | 0xpolygon/bor:2.1.1  | Image for the EL client.                                                                    |
