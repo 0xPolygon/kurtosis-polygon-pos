@@ -24,11 +24,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Login to docker registry
-        if: ${{ inputs.docker_username && inputs.docker_token }}
         uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
-          username: ${{ inputs.docker_username }}
-          password: ${{ inputs.docker_token }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Retrieve tag from source code
         run: |
@@ -78,11 +77,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Login to docker registry
-        if: ${{ inputs.docker_username && inputs.docker_token }}
         uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
-          username: ${{ inputs.docker_username }}
-          password: ${{ inputs.docker_token }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Retrieve tag from source code
         run: |

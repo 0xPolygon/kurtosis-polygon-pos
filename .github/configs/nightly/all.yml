@@ -20,7 +20,7 @@ polygon_pos_package:
       el_image: 0xpolygon/bor:2.1.1
       el_log_level: info
       cl_type: heimdall
-      cl_image: 0xpolygon/heimdall:1.2.3
+      cl_image: 0xpolygon/heimdall:1.6.0
       cl_db_image: rabbitmq:4.1
       cl_log_level: info
       count: 2
@@ -30,7 +30,7 @@ polygon_pos_package:
   setup_images:
     contract_deployer: leovct/pos-contract-deployer-node-20:ed58f8a
     el_genesis_builder: leovct/pos-el-genesis-builder:96a19dd
-    validator_config_generator: leovct/pos-validator-config-generator:1.2.3-0.2.4
+    validator_config_generator: leovct/pos-validator-config-generator:1.6.0-0.2.4
   network_params:
     admin_private_key: "0xd40311b5a5ca5eaeb48dfba5403bde4993ece8eccf4190e98e19fcd4754260ea"
     ## Validators parameters.
