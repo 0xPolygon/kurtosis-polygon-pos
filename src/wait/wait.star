@@ -71,5 +71,5 @@ def wait_for_l2_startup(plan, cl_api_url, cl_type):
                 "done",
             ]
         ),
-        wait="5m",
+        wait="30m",
     )
