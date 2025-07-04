@@ -70,7 +70,7 @@ Default: two validators and one rpc.
 | cl_db_image   | string | rabbitmq:4.1         | Image for the CL database.                                                                  |
 | cl_log_level  | string | info                 | Log level for the CL client.                                                                |
 | el_type       | string | bor                  | Execution Layer (EL) client type.                                                           |
-| el_image      | string | 0xpolygon/bor:2.1.1  | Image for the EL client.                                                                    |
+| el_image      | string | 0xpolygon/bor:2.2.5  | Image for the EL client.                                                                    |
 | el_log_level  | string | info                 | Log level for the EL client.                                                                |
 | count         | int    | 1                    | Number of nodes to spin up for this participant.                                            |
 
