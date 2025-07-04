@@ -51,7 +51,7 @@ def wait_for_l2_startup(plan, cl_api_url, cl_type):
 
     plan.run_sh(
         name="l2-startup-monitor",
-        description="Wait for L2 to start up - it can take up to 5 minutes",
+        description="Wait for L2 to start up - it can take up to 30 minutes",
         env_vars={
             "CL_RPC_URL": cl_api_url,
             "ENDPOINT": endpoint,
@@ -71,5 +71,5 @@ def wait_for_l2_startup(plan, cl_api_url, cl_type):
                 "done",
             ]
         ),
-        wait="5m",
+        wait="30m",
     )
