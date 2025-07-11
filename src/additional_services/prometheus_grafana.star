@@ -8,7 +8,7 @@ GRAFANA_PACKAGE = "github.com/kurtosis-tech/grafana-package/main.star@c8ff0b52d2
 GRAFANA_IMAGE = "grafana/grafana:11.6.0"
 GRAFANA_DASHBOARDS = "../../static_files/additional_services/grafana/dashboards"
 
-PANOPTICHAIN_IMAGE = "ghcr.io/0xpolygon/panoptichain:v3.0.4"
+PANOPTICHAIN_IMAGE = "ghcr.io/0xpolygon/panoptichain:v3.0.6"
 PANOPTICHAIN_PORT = 9090
 PANOPTICHAIN_METRICS_PATH = "/metrics"
 
