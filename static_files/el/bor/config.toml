@@ -5,6 +5,14 @@ verbosity = {{.log_level_to_int}}
 
 syncmode = "{{.sync_mode}}"
 
+{{if .sync_with_witness}}
+syncwithwitnesses = true
+{{end}}
+
+{{if .produce_witness}}
+witnessprotocol = true
+{{end}}
+
 [p2p]
     maxpeers = 200
     bind = "0.0.0.0"
@@ -15,7 +23,8 @@ syncmode = "{{.sync_mode}}"
         static-nodes = {{.static_nodes}}
 
 [heimdall]
-    url = "{{.cl_node_url}}"
+    url = "{{.cl_api_url}}"
+    ws-address = "{{.cl_ws_rpc_url}}"
 
 [accounts]
     allow-insecure-unlock = true
