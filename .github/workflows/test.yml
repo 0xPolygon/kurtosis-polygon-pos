@@ -1,0 +1,306 @@
+name: test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
+
+env:
+  # unit test
+  KURTOSIS_TEST_VERSION: v0.0.5
+  GO_VERSION: 1.21
+
+  # kurtosis deploy
+  ENCLAVE_NAME: cdk
+  POLYCLI_VERSION: v0.1.82
+  E2E_REF: 45314f4f839e1ac54844b4f49c7436de6a9e29d5
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pre kurtosis run
+        uses: ./.github/actions/kurtosis-pre-run
+        with:
+          docker_username: ${{ secrets.DOCKER_USERNAME }}
+          docker_token: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Run kurtosis linter
+        run: kurtosis lint .
+
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Install kurtosis-test
+        run: |
+          git clone --branch ${{ env.KURTOSIS_TEST_VERSION }} https://github.com/ethereum-optimism/kurtosis-test.git /tmp/kurtosis-test
+          cd /tmp/kurtosis-test
+          go build -o kurtosis-test cli/main.go
+          cp kurtosis-test /usr/local/bin
+
+      - name: Run unit tests
+        run: kurtosis-test .
+  
+  docker-build-pos-el-genesis-builder:
+    needs: [lint, unit]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to docker registry
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Retrieve tag from source code
+        run: |
+          tag=$(cat src/constants/constants.star | grep "leovct/pos-el-genesis-builder" | sed 's/.*:\(.*\)".*/\1/')
+          echo "TAG=${tag}" >> $GITHUB_ENV
+          echo "TAG=$tag"
+
+          tag_from_dockerfile=$(cat docker/pos-el-genesis-builder.Dockerfile | grep "^ARG GENESIS_CONTRACTS_TAG_OR_COMMIT_SHA" | cut -d'"' -f2)
+          if [[ "${tag_from_dockerfile}" != "${tag}" ]]; then
+            echo "The tag in the Dockerfile: '${tag_from_dockerfile}' does not match the tag in the source code: '${tag}'."
+            exit 1
+          else
+            echo "The tag in the Dockerfile: '${tag_from_dockerfile}' matches the tag in the source code: '${tag}'."
+          fi
+
+      - name: Construct image name
+        run: |
+          image="leovct/pos-el-genesis-builder:${{ env.TAG }}"
+          echo "IMAGE=${image}" >> $GITHUB_ENV
+          echo "IMAGE=${image}"
+
+      - name: Determine if image should be pushed
+        run: |
+          should_push=true
+          if docker manifest inspect "${{ env.IMAGE }}" > /dev/null 2>&1; then
+            echo "${{ env.IMAGE }} already exists in the registry."
+            should_push=false
+          else
+            echo "${{ env.IMAGE }} does not exist in the registry."
+          fi
+          echo "SHOULD_PUSH=${should_push}" >> $GITHUB_ENV
+          echo "SHOULD_PUSH=${should_push}"
+
+      - name: Build docker image
+        if: ${{ env.SHOULD_PUSH == 'true' }}
+        uses: docker/build-push-action@471d1dc4e07e5cdedd4c2171150001c434f0b7a4 # v6.15.0
+        with:
+          context: docker
+          file: docker/pos-el-genesis-builder.Dockerfile
+          tags: ${{ env.IMAGE }}
+          push: true
+
+  docker-build-pos-validator-config-generator:
+    needs: [lint, unit]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to docker registry
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Retrieve tag from source code
+        run: |
+          tag=$(cat src/constants/constants.star | grep "leovct/pos-validator-config-generator" | sed 's/.*:\(.*\)".*/\1/')
+          heimdall_tag=$(echo "${tag}" | cut -d'-' -f1)
+          heimdall_v2_tag=$(echo "${tag}" | cut -d'-' -f2)
+          echo "TAG=${tag}" >> $GITHUB_ENV
+          echo "TAG=${tag}"
+
+          heimdall_tag_from_dockerfile=$(cat docker/pos-validator-config-generator.Dockerfile | grep "^ARG HEIMDALL_VERSION" | cut -d'"' -f2)
+          if [[ "${heimdall_tag_from_dockerfile}" != "${heimdall_tag}" ]]; then
+            echo "The heimdall tag in the Dockerfile: '${heimdall_tag_from_dockerfile}' does not match the tag in the source code: '${heimdall_tag}'."
+            exit 1
+          else
+            echo "The heimdall tag in the Dockerfile: '${heimdall_tag_from_dockerfile}' matches the tag in the source code: '${heimdall_tag}'."
+          fi
+
+          heimdall_v2_tag_from_dockerfile=$(cat docker/pos-validator-config-generator.Dockerfile | grep "^ARG HEIMDALL_V2_VERSION" | cut -d'"' -f2)
+          if [[ "${heimdall_v2_tag_from_dockerfile}" != "${heimdall_v2_tag}" ]]; then
+            echo "The heimdall v2 tag in the Dockerfile: '${heimdall_v2_tag_from_dockerfile}' does not match the tag in the source code: '${heimdall_v2_tag}'."
+            exit 1
+          else
+            echo "The heimdall v2 tag in the Dockerfile: '${heimdall_v2_tag_from_dockerfile}' matches the tag in the source code: '${heimdall_v2_tag}'."
+          fi
+
+      - name: Construct image name
+        run: |
+          image="leovct/pos-validator-config-generator:${{ env.TAG }}"
+          echo "IMAGE=${image}" >> $GITHUB_ENV
+          echo "IMAGE=${image}"
+
+      - name: Determine if image should be pushed
+        run: |
+          should_push=true
+          if docker manifest inspect "${{ env.IMAGE }}" > /dev/null 2>&1; then
+            echo "${{ env.IMAGE }} already exists in the registry."
+            should_push=false
+          else
+            echo "${{ env.IMAGE }} does not exist in the registry."
+          fi
+          echo "SHOULD_PUSH=${should_push}" >> $GITHUB_ENV
+          echo "SHOULD_PUSH=${should_push}"
+
+      - name: Build docker image
+        if: ${{ env.SHOULD_PUSH == 'true' }}
+        uses: docker/build-push-action@471d1dc4e07e5cdedd4c2171150001c434f0b7a4 # v6.15.0
+        with:
+          context: docker
+          file: docker/pos-validator-config-generator.Dockerfile
+          tags: ${{ env.IMAGE }}
+          push: true
+
+  run-without-args:
+    needs:
+      - lint
+      - unit
+      - docker-build-pos-el-genesis-builder
+      - docker-build-pos-validator-config-generator
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pre kurtosis run
+        uses: ./.github/actions/kurtosis-pre-run
+        with:
+          docker_username: ${{ secrets.DOCKER_USERNAME }}
+          docker_token: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Kurtosis run
+        run: kurtosis run --enclave=${{ env.ENCLAVE_NAME }} .
+
+      - name: Inspect enclave
+        run: kurtosis enclave inspect ${{ env.ENCLAVE_NAME }}
+
+      - name: Test state syncs
+        run: kurtosis service exec ${{ env.ENCLAVE_NAME }} test-runner "bats --filter-tags pos,bridge,matic,pol --recursive tests/"
+
+      - name: Monitor milestones and checkpoints
+        uses: ./.github/actions/monitor-milestones-and-checkpoints
+        with:
+          enclave_name: ${{ env.ENCLAVE_NAME }}
+
+      - name: Post kurtosis run
+        if: always()
+        uses: ./.github/actions/kurtosis-post-run
+        with:
+          enclave_name: ${{ env.ENCLAVE_NAME }}
+
+  list-ymls:
+    needs: [lint, unit]
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: set-matrix
+        run: |
+          file_paths=$(ls -R ./.github/configs/{*,*/*}.yml | grep -Ev "nightly")
+          echo "file_paths=${file_paths}"
+
+          matrix=$(echo "${file_paths}" | while read -r file_path; do
+            file_name=$(basename -s ".yml" "${file_path}")
+            folder_name=$(basename $(dirname "${file_path}"))
+            if [[ "${folder_name}" == "configs" ]]; then
+              job_name="${file_name}"
+            else
+              job_name="${folder_name}-${file_name}"
+            fi
+            echo "{\"name\": \"$job_name\", \"path\": \"$file_path\"}"
+          done | jq -s -c '.')
+          echo "matrix=${matrix}"
+
+          echo "matrix=${matrix}" >> $GITHUB_OUTPUT
+
+  run-with-args:
+    needs:
+      - lint
+      - unit
+      - docker-build-pos-el-genesis-builder
+      - docker-build-pos-validator-config-generator
+      - list-ymls
+    name: run-with-${{ matrix.file.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        file: ${{ fromJson(needs.list-ymls.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pre kurtosis run
+        uses: ./.github/actions/kurtosis-pre-run
+        with:
+          docker_username: ${{ secrets.DOCKER_USERNAME }}
+          docker_token: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Kurtosis run
+        run: kurtosis run --enclave=${{ env.ENCLAVE_NAME }} --args-file=${{ matrix.file.path }} .
+
+      - name: Inspect enclave
+        run: kurtosis enclave inspect ${{ env.ENCLAVE_NAME }}
+
+      - name: Check if test runner is deployed
+        id: check-test-runner
+        run: |
+          # The test runner is deployed by default.
+          test_runner_deployed=true
+
+          # Verify if additional services are defined and ensure the test runner is deployed.
+          additional_services=$(yq '.polygon_pos_package.additional_services' ${{ matrix.file.path }})
+          if [[ "${additional_services}" != "null" ]]; then
+            is_test_runner_deployed=$(yq '.polygon_pos_package.additional_services | contains(["test_runner"])' ${{ matrix.file.path }})
+            if [[ "${is_test_runner_deployed}" != "true" ]]; then
+              test_runner_deployed=false
+            fi
+          fi
+
+          echo "test_runner_deployed=${test_runner_deployed}" >> $GITHUB_OUTPUT
+
+      - name: Test state syncs
+        if: steps.check-test-runner.outputs.test_runner_deployed == 'true'
+        run: kurtosis service exec ${{ env.ENCLAVE_NAME }} test-runner "bats --filter-tags pos,bridge,matic,pol --recursive tests/"
+
+      - name: Monitor milestones and checkpoints
+        if: ${{ !contains(matrix.file.name, 'heimdall-v2') }} # skip for heimdall-v2 as it takes more than 10 minutes to get the first checkpoint.
+        uses: ./.github/actions/monitor-milestones-and-checkpoints
+        with:
+          enclave_name: ${{ env.ENCLAVE_NAME }}
+          args_filename: ${{ matrix.file.path }}
+
+      - name: Post kurtosis run
+        if: always()
+        uses: ./.github/actions/kurtosis-post-run
+        with:
+          enclave_name: ${{ env.ENCLAVE_NAME }}
+          args_filename: ${{ matrix.file.name }}

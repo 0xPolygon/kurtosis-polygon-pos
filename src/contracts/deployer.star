@@ -1,4 +1,4 @@
-constants = import_module("../config/constants.star")
+constants = import_module("../constants/constants.star")
 
 CONTRACTS_CONFIG_FILE_PATH = "../../static_files/contracts"
 
@@ -26,7 +26,7 @@ def deploy_l1_contracts(
             "PRIVATE_KEY": private_key,
             "L1_RPC_URL": l1_rpc_url,
             "EL_CHAIN_ID": network_params.get("el_chain_id"),
-            "DEFAULT_EL_CHAIN_ID": constants.DEFAULT_EL_CHAIN_ID,
+            "DEFAULT_EL_CHAIN_ID": constants.EL_CHAIN_ID,
             "CL_CHAIN_ID": network_params.get("cl_chain_id"),
             "VALIDATOR_ACCOUNTS": validator_accounts_formatted,
             "VALIDATOR_BALANCE": str(constants.VALIDATORS_BALANCE_ETH),
@@ -93,7 +93,7 @@ def deploy_l2_contracts_and_synchronise_l1_state(
             "L1_RPC_URL": l1_rpc_url,
             "L2_RPC_URL": l2_rpc_url,
             "EL_CHAIN_ID": network_params.get("el_chain_id"),
-            "DEFAULT_EL_CHAIN_ID": constants.DEFAULT_EL_CHAIN_ID,
+            "DEFAULT_EL_CHAIN_ID": constants.EL_CHAIN_ID,
         },
         files={
             "/opt/data": contract_deployer_config_artifact,
