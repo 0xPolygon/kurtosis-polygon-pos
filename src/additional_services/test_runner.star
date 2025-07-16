@@ -1,5 +1,5 @@
 contract_util = import_module("../contracts/util.star")
-wallet_module = import_module("../wallet/wallet.star")
+wallet_module = import_module("../utils/wallet/wallet.star")
 
 
 def launch(

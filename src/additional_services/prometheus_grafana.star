@@ -1,5 +1,5 @@
 contract_util = import_module("../contracts/util.star")
-constants = import_module("../config/constants.star")
+enums = import_module("../enums.star")
 
 PROMETHEUS_PACKAGE = "github.com/kurtosis-tech/prometheus-package/main.star@f5ce159aec728898e3deb827f6b921f8ecfc527f"
 PROMETHEUS_IMAGE = "prom/prometheus:v3.2.1"
@@ -79,8 +79,8 @@ def launch_panoptichain(
     )
 
     heimdall_version_map = {
-        constants.CL_TYPE.heimdall: 1,
-        constants.CL_TYPE.heimdall_v2: 2,
+        enums.CL_TYPE.heimdall: 1,
+        enums.CL_TYPE.heimdall_v2: 2,
     }
     heimdall_version = heimdall_version_map.get(l2_context.devnet_cl_type)
 

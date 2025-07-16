@@ -1,17 +1,19 @@
-account_util = import_module("./src/account/account.star")
+account_util = import_module("./src/utils/account/account.star")
 additional_services_launcher = import_module("./src/additional_services/launcher.star")
-cl_genesis = import_module("./src/cl/genesis.star")
-constants = import_module("./src/config/constants.star")
+cl_genesis = import_module("./src/clients/cl/genesis.star")
+constants = import_module("./src/constants/constants.star")
 contract_deployer = import_module("./src/contracts/deployer.star")
-el_cl_launcher = import_module("./src/el_cl_launcher.star")
-el_genesis = import_module("./src/el/genesis.star")
-el_shared = import_module("./src/el/shared.star")
-hex = import_module("./src/hex/hex.star")
+defaults = import_module("./src/config/defaults.star")
+el_cl_launcher = import_module("./src/clients/el_cl_launcher.star")
+el_genesis = import_module("./src/clients/el/genesis.star")
+el_shared = import_module("./src/clients/el/shared.star")
+hex = import_module("./src/utils/hex/hex.star")
 input_parser = import_module("./src/config/input_parser.star")
-math = import_module("./src/math/math.star")
-prefunded_accounts_module = import_module("./src/prefunded_accounts/accounts.star")
-wait = import_module("./src/wait/wait.star")
-wallet = import_module("./src/wallet/wallet.star")
+math = import_module("./src/utils/math/math.star")
+prefunded_accounts_module = import_module("./src/constants/prefunded_accounts.star")
+enums = import_module("./src/enums.star")
+wait = import_module("./src/utils/wait/wait.star")
+wallet = import_module("./src/utils/wallet/wallet.star")
 
 ETHEREUM_PACKAGE = "github.com/ethpandaops/ethereum-package/main.star@1bf08937f7ec376d5e281fef87dc1efc28aeefef"  # 2025-06-14 (>v5.0.1)
 
@@ -194,7 +196,7 @@ def get_validator_accounts(participants):
     id = 0
     for p in participants:
         for _ in range(p.get("count")):
-            is_validator = p.get("kind") == constants.PARTICIPANT_KIND.validator
+            is_validator = p.get("kind") == enums.PARTICIPANT_KIND.validator
             if is_validator:
                 account = prefunded_accounts[id]
                 validator_accounts.append(account)
@@ -211,9 +213,7 @@ def deploy_local_l1(
 ):
     # Sanity check the mnemonic used.
     # TODO: Remove this limitation.
-    l2_network_params = input_parser.DEFAULT_POLYGON_POS_PACKAGE_ARGS.get(
-        "network_params"
-    )
+    l2_network_params = defaults.POLYGON_POS_PACKAGE_ARGS.get("network_params")
     default_l2_mnemonic = l2_network_params.get("preregistered_validator_keys_mnemonic")
     if preregistered_validator_keys_mnemonic != default_l2_mnemonic:
         fail("Using a different mnemonic is not supported for now.")
