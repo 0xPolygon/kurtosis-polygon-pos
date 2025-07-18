@@ -14,7 +14,7 @@ nodiscover = true
 staticpeers = "{{.static_nodes}}"
 
 # [heimdall]
-"bor.heimdall" = "{{.cl_node_url}}"
+"bor.heimdall" = "{{.cl_api_url}}"
 
 # [bor]
 "bor.milestone" = true

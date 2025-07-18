@@ -17,7 +17,8 @@ def launch(
     participant,
     el_genesis_artifact,
     el_credentials_artifact,
-    cl_node_url,
+    cl_api_url,
+    cl_ws_rpc_url,
     el_account,
     el_static_nodes,
     el_chain_id,
@@ -34,7 +35,7 @@ def launch(
                     "data_folder_path": ERIGON_APP_DATA_FOLDER_PATH,
                     "kind": participant.get("kind"),
                     "address": el_account.eth_tendermint.address,
-                    "cl_node_url": cl_node_url,
+                    "cl_api_url": cl_api_url,
                     "log_level": participant.get("el_log_level"),
                     # network params.
                     "el_chain_id": el_chain_id,

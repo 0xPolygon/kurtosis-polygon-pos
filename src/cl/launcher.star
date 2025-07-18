@@ -41,11 +41,15 @@ def launch(
         el_rpc_url,
         rabbitmq_url,
     )
+    http_rpc_url = service.ports[cl_shared.RPC_PORT_ID].url
+    (_, _, rpc_host_port) = http_rpc_url.partition("://")
+    ws_rpc_url = "ws://{}/websocket".format(rpc_host_port)
 
     return context.new_context(
         service_name=cl_node_name,
         api_url=service.ports[cl_shared.REST_API_PORT_ID].url,
-        rpc_url=service.ports[cl_shared.RPC_PORT_ID].url,
+        rpc_url=http_rpc_url,
+        ws_rpc_url=ws_rpc_url,
         metrics_url=service.ports[cl_shared.METRICS_PORT_ID].url,
     )
 

@@ -1,6 +1,5 @@
 el_shared = import_module("../shared.star")
 
-
 # The folder where the bor template config is stored in the repository.
 BOR_TEMPLATE_CONFIG_FILE_PATH = "../../../static_files/el/bor/config.toml"
 
@@ -16,7 +15,8 @@ def launch(
     participant,
     el_genesis_artifact,
     el_credentials_artifact,
-    cl_node_url,
+    cl_api_url,
+    cl_ws_rpc_url,
     el_account,
     el_static_nodes,
     el_chain_id,
@@ -33,11 +33,14 @@ def launch(
                     "data_folder_path": BOR_APP_DATA_FOLDER_PATH,
                     "kind": participant.get("kind"),
                     "address": el_account.eth_tendermint.address,
-                    "cl_node_url": cl_node_url,
+                    "cl_api_url": cl_api_url,
+                    "cl_ws_rpc_url": cl_ws_rpc_url,
                     "log_level_to_int": log_level_to_int(
                         participant.get("el_log_level")
                     ),
                     "sync_mode": participant.get("el_bor_sync_mode"),
+                    "produce_witness": participant.get("el_bor_produce_witness"),
+                    "sync_with_witness": participant.get("el_bor_sync_with_witness"),
                     # network params
                     "static_nodes": str(el_static_nodes),
                     # ports

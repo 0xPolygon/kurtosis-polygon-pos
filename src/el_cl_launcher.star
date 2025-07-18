@@ -71,10 +71,13 @@ def launch(
 
             # Retrieve the correct CL api url.
             cl_api_url = None
+            cl_ws_rpc_url = None
             if cl_context:
                 cl_api_url = cl_context.api_url
+                cl_ws_rpc_url = cl_context.ws_rpc_url
             elif first_cl_context:
                 cl_api_url = first_cl_context.api_url
+                cl_ws_rpc_url = first_cl_context.ws_rpc_url
             else:
                 fail("No CL node deployed yet...")
 
@@ -86,6 +89,7 @@ def launch(
                 participant_index + 1,
                 el_genesis_artifact,
                 cl_api_url,
+                cl_ws_rpc_url,
                 el_account,
                 network_data.el_static_nodes,
                 el_chain_id,
