@@ -22,6 +22,7 @@
       "indoreBlock": 0,
       "ahmedabadBlock": 0,
       "bhilaiBlock": 0,
+      "veblopBlock": 384,
       "stateSyncConfirmationDelay": {
         "0": 32
       },
@@ -29,13 +30,15 @@
         "0": {{.el_block_interval_seconds}}
       },
       "producerDelay": {
-        "0": 2
+        "0": 2,
+        "384": 1
       },
       "sprint": {
         "0": {{.el_sprint_duration}}
       },
       "backupMultiplier": {
-        "0": 2
+        "0": 2,
+        "384": 2
       },
       "validatorContract": "0x0000000000000000000000000000000000001000",
       "stateReceiverContract": "0x0000000000000000000000000000000000001001",

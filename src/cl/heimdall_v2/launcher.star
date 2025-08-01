@@ -119,7 +119,12 @@ def launch(
                             cl_shared.CONFIG_FOLDER_PATH
                         ),
                         # Start heimdall.
-                        "heimdalld start --all --bridge --rest-server --home {}".format(
+                        # Note: this command attempts to start Heimdalld and retries if it fails.
+                        # The retry mechanism addresses a race condition where Heimdalld initially fails to
+                        # resolve hostnames of other nodes, as services are created sequentially;
+                        # after a 5-second delay, all services should be up, allowing Heimdalld to start
+                        # successfully.
+                        "while ! heimdalld start --all --bridge --rest-server --home {}; do echo -e '\\n❌ Heimdalld failed to start. Retrying in five seconds...\\n'; sleep 5; done".format(
                             cl_shared.CONFIG_FOLDER_PATH,
                         ),
                     ]

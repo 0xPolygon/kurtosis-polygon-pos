@@ -100,7 +100,7 @@ def deploy_l2_contracts_and_synchronise_l1_state(
             ),
         ],
         run="bash /opt/data/deploy-l2-contracts.sh",
-        wait="5m",
+        wait="10m",
     )
     artifact_count = len(result.files_artifacts)
     if artifact_count != 1:
